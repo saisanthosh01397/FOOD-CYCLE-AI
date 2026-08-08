@@ -1,0 +1,19 @@
+{
+    "timestamp": "2026-08-05T17:04:03Z",
+    "random_seed": 42,
+    "datasets": {
+        "daily_food_waste": {
+            "rows": 2190,
+            "path": "../../datasets/raw\\daily_food_waste.csv"
+        },
+        "recovery_data": {
+            "rows": 5500,
+            "path": "../../datasets/raw\\recovery_data.csv"
+        },
+        "sustainability": {
+            "rows": 365,
+            "path": "../../datasets/raw\\sustainability_data.csv"
+        }
+    },
+    "generation_time_seconds": 1.5
+}

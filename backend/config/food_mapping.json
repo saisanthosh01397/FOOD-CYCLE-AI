@@ -1,0 +1,16 @@
+{
+    "apple": "Fruit Waste",
+    "banana": "Fruit Waste",
+    "orange": "Fruit Waste",
+    "broccoli": "Vegetable Waste",
+    "carrot": "Vegetable Waste",
+    "hot dog": "Cooked Food",
+    "pizza": "Cooked Food",
+    "donut": "Cooked Food",
+    "cake": "Cooked Food",
+    "sandwich": "Cooked Food",
+    "bowl": "Mixed Food Waste",
+    "cup": "Mixed Food Waste",
+    "bottle": "Mixed Food Waste",
+    "dining table": "Mixed Food Waste"
+}

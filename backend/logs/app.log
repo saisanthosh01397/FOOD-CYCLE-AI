@@ -1,0 +1,150 @@
+2026-08-05 20:59:33,189 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 20:59:33,737 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/health "HTTP/1.1 200 OK"
+2026-08-05 20:59:33,794 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\SAI SANTHOSH\OneDrive\Desktop\FoodCycleAI\backend\venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-08-05 20:59:33,852 - main - ERROR - Unexpected Error: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+2026-08-05 20:59:33,854 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/register "HTTP/1.1 500 Internal Server Error"
+2026-08-05 21:01:25,013 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 21:01:25,571 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/health "HTTP/1.1 200 OK"
+2026-08-05 21:01:26,239 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/register "HTTP/1.1 201 Created"
+2026-08-05 21:01:26,884 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/login "HTTP/1.1 200 OK"
+2026-08-05 21:01:26,919 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/food-logs "HTTP/1.1 201 Created"
+2026-08-05 21:01:26,937 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/food-logs "HTTP/1.1 200 OK"
+2026-08-05 21:01:26,971 - httpx - INFO - HTTP Request: PUT http://127.0.0.1:8000/food-logs/b60d22dc-3311-4e35-94c0-19c8e2d7891b "HTTP/1.1 200 OK"
+2026-08-05 21:01:26,986 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/prediction "HTTP/1.1 200 OK"
+2026-08-05 21:01:27,001 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/recovery "HTTP/1.1 200 OK"
+2026-08-05 21:01:27,020 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/dashboard "HTTP/1.1 200 OK"
+2026-08-05 21:01:27,077 - httpx - INFO - HTTP Request: DELETE http://127.0.0.1:8000/food-logs/b60d22dc-3311-4e35-94c0-19c8e2d7891b "HTTP/1.1 204 No Content"
+2026-08-05 21:11:05,482 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 21:11:05,691 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/health "HTTP/1.1 200 OK"
+2026-08-05 21:11:06,418 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/register "HTTP/1.1 201 Created"
+2026-08-05 21:11:07,219 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/login "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,265 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/food-logs "HTTP/1.1 201 Created"
+2026-08-05 21:11:07,282 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/food-logs "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,315 - httpx - INFO - HTTP Request: PUT http://127.0.0.1:8000/food-logs/1434a27e-db38-47db-86e1-3d62e8365883 "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,327 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/prediction "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,338 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/recovery "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,355 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/dashboard "HTTP/1.1 200 OK"
+2026-08-05 21:11:07,432 - httpx - INFO - HTTP Request: DELETE http://127.0.0.1:8000/food-logs/1434a27e-db38-47db-86e1-3d62e8365883 "HTTP/1.1 204 No Content"
+2026-08-05 21:15:38,208 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 21:20:37,063 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:32:51,249 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:34:56,480 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:35:42,558 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:36:15,735 - httpx - INFO - HTTP Request: GET http://127.0.0.1:8000/health "HTTP/1.1 200 OK"
+2026-08-05 22:36:16,524 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/register "HTTP/1.1 201 Created"
+2026-08-05 22:36:17,317 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/auth/login "HTTP/1.1 200 OK"
+2026-08-05 22:36:17,384 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/food-logs "HTTP/1.1 201 Created"
+2026-08-05 22:36:17,623 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/prediction "HTTP/1.1 200 OK"
+2026-08-05 22:36:17,835 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/recovery "HTTP/1.1 200 OK"
+2026-08-05 22:36:17,885 - httpx - INFO - HTTP Request: DELETE http://127.0.0.1:8000/food-logs/2549ea39-f819-436b-a7ee-e2a35d590b07 "HTTP/1.1 204 No Content"
+2026-08-05 22:51:03,820 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:53:25,144 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 22:53:55,600 - main - ERROR - HTTP Error 404: Not Found
+2026-08-05 22:53:55,677 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/vision/upload-image "HTTP/1.1 404 Not Found"
+2026-08-05 22:56:36,647 - main - ERROR - HTTP Error 404: Not Found
+2026-08-05 22:59:12,283 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 23:01:06,250 - main - ERROR - HTTP Error 404: Not Found
+2026-08-05 23:01:06,253 - httpx - INFO - HTTP Request: POST http://127.0.0.1:8000/vision/upload-image "HTTP/1.1 404 Not Found"
+2026-08-05 23:01:58,081 - httpx - INFO - HTTP Request: POST http://testserver/vision/upload-image "HTTP/1.1 200 OK"
+2026-08-05 23:02:46,572 - httpx - INFO - HTTP Request: POST http://testserver/vision/upload-image "HTTP/1.1 200 OK"
+2026-08-05 23:02:55,281 - httpx - INFO - HTTP Request: POST http://testserver/vision/detect-food?image_id=7cfa2a64-4dbb-468c-b990-55dfb0246837 "HTTP/1.1 200 OK"
+2026-08-05 23:02:56,712 - services.recovery_service - ERROR - Recommendation failed: 'food_category'
+2026-08-05 23:02:56,724 - httpx - INFO - HTTP Request: POST http://testserver/vision/analyze-image "HTTP/1.1 200 OK"
+2026-08-05 23:17:06,159 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-05 23:25:32,574 - main - ERROR - HTTP Error 404: Not Found
+2026-08-05 23:29:07,372 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'admin123', 'role': 'user'}}, {'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-05 23:29:13,761 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'admin123', 'role': 'Admin'}}]
+2026-08-05 23:29:37,477 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'admin123', 'role': 'user'}}, {'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-05 23:30:02,744 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'saisanthoshreddybontha632@gmail.com', 'password': 'Santhosh732@', 'role': 'user'}}, {'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-05 23:30:11,035 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'saisanthoshreddybontha632@gmail.com', 'password': 'Santhosh732@', 'role': 'Admin'}}]
+2026-08-05 23:30:18,492 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'saisanthoshreddybontha632@gmail.com', 'password': 'Saireddy732@', 'role': 'Admin'}}]
+2026-08-06 11:14:27,172 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 11:21:43,796 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'john.doe@example.com', 'password': 'SecureP@ssw0rd', 'role': 'user'}}, {'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-06 11:21:50,636 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'john.doe@example.com', 'password': 'SecureP@ssw0rd', 'role': 'Admin'}}]
+2026-08-06 11:29:44,563 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'sai@test.com', 'password': 'Password123!', 'role': 'user'}}, {'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-06 11:29:51,501 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'sai@test.com', 'password': 'Password123!', 'role': 'Admin'}}]
+2026-08-06 11:35:27,810 - main - ERROR - Validation Error: [{'type': 'enum', 'loc': ('body', 'role'), 'msg': "Input should be 'Admin', 'Manager' or 'Viewer'", 'input': 'user', 'ctx': {'expected': "'Admin', 'Manager' or 'Viewer'"}}]
+2026-08-06 11:57:46,610 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 11:57:53,334 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:00:46,213 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:06:48,588 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:07:09,757 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:10:04,682 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:14:21,946 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:14:43,798 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 12:18:13,707 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 12:18:25,634 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:19:42,988 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 12:20:26,293 - services.recovery_service - ERROR - Recommendation failed: 'food_category'
+2026-08-06 12:22:27,353 - services.recovery_service - ERROR - Recommendation failed: 'food_category'
+2026-08-06 12:22:49,798 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:22:53,549 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:22:54,749 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:22:55,053 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:22:55,746 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 12:27:18,165 - services.recovery_service - ERROR - Recommendation failed: 'food_category'
+2026-08-06 12:29:07,650 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 17:36:57,741 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 17:41:25,067 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 17:46:44,227 - main - ERROR - HTTP Error 400: Email already registered
+2026-08-06 17:46:44,267 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'wrongpassword'}}]
+2026-08-06 17:46:44,277 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'admin123'}}]
+2026-08-06 17:46:59,026 - main - ERROR - Validation Error: [{'type': 'missing', 'loc': ('body', 'full_name'), 'msg': 'Field required', 'input': {'email': 'admin@foodcycle.ai', 'password': 'admin123'}}]
+2026-08-06 17:47:55,096 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 18:11:28,982 - main - ERROR - Database Error: (pymysql.err.DataError) (1265, "Data truncated for column 'role' at row 1")
+[SQL: INSERT INTO users (full_name, email, password_hash, `role`, id, created_at, updated_at) VALUES (%(full_name)s, %(email)s, %(password_hash)s, %(role)s, %(id)s, %(created_at)s, %(updated_at)s)]
+[parameters: {'full_name': 'Admin User', 'email': 'admin@example.com', 'password_hash': '$2b$12$1MmSYHDLd/Mk3wqrDp86QeRfcFtxcZumQ7qkfdwXB5RFAHZmM44H.', 'role': 'viewer', 'id': 'e9fc35cb-9ffb-4d72-b662-21b384d63fe8', 'created_at': datetime.datetime(2026, 8, 6, 12, 41, 28, 930205, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 6, 12, 41, 28, 930215, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2026-08-06 18:11:29,878 - main - ERROR - Database Error: (pymysql.err.DataError) (1265, "Data truncated for column 'role' at row 1")
+[SQL: INSERT INTO users (full_name, email, password_hash, `role`, id, created_at, updated_at) VALUES (%(full_name)s, %(email)s, %(password_hash)s, %(role)s, %(id)s, %(created_at)s, %(updated_at)s)]
+[parameters: {'full_name': 'Mess Manager', 'email': 'manager@example.com', 'password_hash': '$2b$12$NCHHsDO3fLcAjnb.IXJZTe7a8XbL8ImL.yKbzWyTDYUlNq9YZrrSC', 'role': 'viewer', 'id': 'a9495d67-c0cc-4f10-b6ce-7c368e2967d0', 'created_at': datetime.datetime(2026, 8, 6, 12, 41, 29, 869327, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 6, 12, 41, 29, 869335, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2026-08-06 18:11:29,909 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:11:29,927 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:11:29,950 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 18:11:29,957 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 18:11:38,462 - main - ERROR - Database Error: (pymysql.err.DataError) (1265, "Data truncated for column 'role' at row 1")
+[SQL: INSERT INTO users (full_name, email, password_hash, `role`, id, created_at, updated_at) VALUES (%(full_name)s, %(email)s, %(password_hash)s, %(role)s, %(id)s, %(created_at)s, %(updated_at)s)]
+[parameters: {'full_name': 'Admin User', 'email': 'admin@example.com', 'password_hash': '$2b$12$lSQ/td1l1deR11tFMGElKOF3xiRtcl/aeaDIN9pwM7wODqcLNuX9W', 'role': 'viewer', 'id': '38b25b50-1da8-46a9-af9b-91f42310eac2', 'created_at': datetime.datetime(2026, 8, 6, 12, 41, 38, 455349, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 6, 12, 41, 38, 455356, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2026-08-06 18:11:38,895 - main - ERROR - Database Error: (pymysql.err.DataError) (1265, "Data truncated for column 'role' at row 1")
+[SQL: INSERT INTO users (full_name, email, password_hash, `role`, id, created_at, updated_at) VALUES (%(full_name)s, %(email)s, %(password_hash)s, %(role)s, %(id)s, %(created_at)s, %(updated_at)s)]
+[parameters: {'full_name': 'Mess Manager', 'email': 'manager@example.com', 'password_hash': '$2b$12$Fj4yfFgT8wRT0naUV829cOk/y3tWMcDRcfFakBuvO1JW1f7hrBQDy', 'role': 'viewer', 'id': 'cb0eb995-6847-4d7a-9fa2-0baa6bc14e10', 'created_at': datetime.datetime(2026, 8, 6, 12, 41, 38, 888341, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 6, 12, 41, 38, 888349, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)
+2026-08-06 18:11:38,931 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:11:38,947 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:11:38,954 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 18:11:38,965 - main - ERROR - HTTP Error 404: Not Found
+2026-08-06 18:15:24,923 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-06 18:16:43,921 - main - ERROR - HTTP Error 403: Not enough privileges
+2026-08-06 18:16:43,942 - main - ERROR - HTTP Error 403: Not enough privileges
+2026-08-06 18:16:43,977 - main - ERROR - HTTP Error 400: Cannot demote the last remaining Administrator.
+2026-08-06 18:34:03,309 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:34:11,480 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:34:16,397 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:34:29,102 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 18:34:44,187 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 22:56:18,470 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 22:56:26,585 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 22:59:43,295 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 23:00:32,547 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 23:00:38,073 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-06 23:07:07,748 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-07 23:16:56,386 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-07 23:16:57,973 - main - INFO - Creating default administrator: admin@foodcycleai.com
+2026-08-07 23:17:04,390 - main - ERROR - HTTP Error 404: Not Found
+2026-08-07 23:17:22,050 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-07 23:18:04,942 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-07 23:18:55,527 - main - INFO - FoodCycle AI FastAPI started.
+2026-08-07 23:19:17,219 - main - ERROR - HTTP Error 403: Account is inactive. Please contact your administrator.
+2026-08-07 23:25:27,354 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-07 23:51:01,541 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 00:08:11,235 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 08:25:32,759 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-08-08 08:25:32,819 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-08-08 08:25:46,376 - main - ERROR - HTTP Error 401: Incorrect email or password
