@@ -125,14 +125,37 @@ export default function VisionPage() {
               </div>
 
               <div className="space-y-6 flex-1">
-                {/* Visual Confidence */}
-                <div>
-                  <div className="flex justify-between text-sm font-medium mb-1">
-                    <span className="text-slate-500">Detected Category</span>
-                    <span className="font-bold">{result.detected_category}</span>
+                {/* Annotated Image */}
+                {result.annotated_image && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Annotated YOLOv8 Output</h4>
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md border dark:border-slate-700">
+                      <img src={`/static/results/${result.annotated_image}`} alt="Annotated Output" className="w-full h-full object-cover" />
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm mb-2 mt-4">
-                    <span className="text-slate-500">YOLO Confidence</span>
+                )}
+
+                {/* Detected Objects Table/List */}
+                <div>
+                  <h4 className="font-semibold mb-2">Detected Objects</h4>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border dark:border-slate-700 divide-y dark:divide-slate-700 max-h-40 overflow-y-auto">
+                    {result.all_detections?.map((det, idx) => (
+                      <div key={idx} className="p-3 flex justify-between items-center text-sm">
+                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                          {det.food_category} <span className="text-xs text-slate-400">({det.raw_class})</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-500 font-semibold">{(det.confidence * 100).toFixed(1)}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Visual Confidence (Overall) */}
+                <div>
+                  <div className="flex justify-between text-sm mb-1 mt-2">
+                    <span className="text-slate-500">Overall Confidence</span>
                     <span className="text-emerald-500 font-bold">{(result.confidence * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -164,26 +187,32 @@ export default function VisionPage() {
                   )}
                 </div>
 
-                {/* NPK Output (if available) */}
-                {result.npk_values && (
-                  <div>
-                    <h4 className="font-semibold mb-3">Estimated Resource Output</h4>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900">
-                        <div className="text-xs text-slate-500 mb-1">Nitrogen (N)</div>
-                        <div className="font-bold">{result.npk_values.N}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900">
-                        <div className="text-xs text-slate-500 mb-1">Phosphorus (P)</div>
-                        <div className="font-bold">{result.npk_values.P}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900">
-                        <div className="text-xs text-slate-500 mb-1">Potassium (K)</div>
-                        <div className="font-bold">{result.npk_values.K}</div>
-                      </div>
+                {/* Sustainability Metrics (NPK and Carbon) */}
+                <div>
+                  <h4 className="font-semibold mb-3">Estimated Impact & Resource Output</h4>
+                  <div className="grid grid-cols-4 gap-3">
+                    {result.npk_values && (
+                      <>
+                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-emerald-50 dark:bg-emerald-900/10">
+                          <div className="text-xs text-slate-500 mb-1">Nitrogen</div>
+                          <div className="font-bold text-emerald-600 dark:text-emerald-400">{result.npk_values.nitrogen}</div>
+                        </div>
+                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-blue-50 dark:bg-blue-900/10">
+                          <div className="text-xs text-slate-500 mb-1">Phosphorus</div>
+                          <div className="font-bold text-blue-600 dark:text-blue-400">{result.npk_values.phosphorus}</div>
+                        </div>
+                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-amber-50 dark:bg-amber-900/10">
+                          <div className="text-xs text-slate-500 mb-1">Potassium</div>
+                          <div className="font-bold text-amber-600 dark:text-amber-400">{result.npk_values.potassium}</div>
+                        </div>
+                      </>
+                    )}
+                    <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-purple-50 dark:bg-purple-900/10">
+                      <div className="text-xs text-slate-500 mb-1">CO₂ Saved</div>
+                      <div className="font-bold text-purple-600 dark:text-purple-400">{(quantity * 1.5).toFixed(1)}kg</div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}

@@ -49,7 +49,7 @@ function App() {
           <Route path="/prediction" element={<ProtectedRoute><PredictionPage /></ProtectedRoute>} />
           <Route path="/vision" element={<ProtectedRoute><VisionPage /></ProtectedRoute>} />
           <Route path="/recovery" element={<ProtectedRoute><RecoveryPage /></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['Administrator', 'Mess Manager']}><AnalyticsPage /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />

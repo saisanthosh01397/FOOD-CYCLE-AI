@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '^/(auth|food-logs|prediction|recovery|dashboard|health|vision)': {
+      '^/(auth|food-logs|prediction|recovery|dashboard|health|vision|users|system|export|static)': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       }

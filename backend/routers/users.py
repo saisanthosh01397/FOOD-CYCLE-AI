@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User, UserRole, UserActivityLog
@@ -33,6 +34,40 @@ def create_user_by_admin(user_data: UserCreate, db: Session = Depends(get_db), c
     db.commit()
     db.refresh(new_user)
     return new_user
+
+class AdminUserUpdate(BaseModel):
+    full_name: str
+    email: str
+
+class AdminPasswordUpdate(BaseModel):
+    new_password: str
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user_by_admin(user_id: str, payload: AdminUserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin_user)):
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if payload.email != target_user.email:
+        existing = db.query(User).filter(User.email == payload.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+            
+    target_user.full_name = payload.full_name
+    target_user.email = payload.email
+    db.commit()
+    db.refresh(target_user)
+    return target_user
+
+@router.put("/{user_id}/password", status_code=status.HTTP_200_OK)
+def reset_user_password(user_id: str, payload: AdminPasswordUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin_user)):
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    target_user.password_hash = get_password_hash(payload.new_password)
+    db.commit()
+    return {"message": "Password reset successfully"}
 
 @router.put("/{user_id}/role", response_model=UserResponse)
 def update_user_role(user_id: str, payload: UserUpdateRole, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin_user)):

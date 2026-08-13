@@ -67,6 +67,13 @@ export default function Layout({ children }) {
             </motion.div>
           </AnimatePresence>
         </main>
+        
+        <footer className="w-full border-t dark:border-slate-800 p-4 mt-auto">
+          <div className="max-w-7xl mx-auto text-center text-sm text-slate-500 dark:text-slate-400 space-y-1">
+            <p className="font-medium text-slate-700 dark:text-slate-300">FoodCycle AI &copy; 2026 | Version 1.0.0</p>
+            <p>Developed by <strong>Sai Santhosh Bontha</strong> | Kalasalingam Academy of Research and Education</p>
+          </div>
+        </footer>
       </div>
     </div>
   );

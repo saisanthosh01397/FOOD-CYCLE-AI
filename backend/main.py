@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from database import engine
-from routers import auth, food_logs, predictions, recovery, dashboard, health, vision, users, system, export
+from routers import auth, food_logs, predictions, recovery, dashboard, health, vision, users, system, export, history
 
 # Configure Logging
 logging.basicConfig(
@@ -68,12 +68,17 @@ app.include_router(vision.router)
 app.include_router(users.router)
 app.include_router(system.router)
 app.include_router(export.router)
+app.include_router(history.router)
 
 from fastapi.staticfiles import StaticFiles
 import os
 
 os.makedirs("uploads/avatars", exist_ok=True)
+os.makedirs("uploads/images", exist_ok=True)
+os.makedirs("uploads/results", exist_ok=True)
 app.mount("/static/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
+app.mount("/static/images", StaticFiles(directory="uploads/images"), name="images")
+app.mount("/static/results", StaticFiles(directory="uploads/results"), name="results")
 
 @app.get("/")
 def read_root():

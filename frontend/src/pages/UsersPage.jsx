@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Users, Shield, ShieldAlert, CheckCircle, XCircle, Trash2, Search, Plus, X } from 'lucide-react';
+import { Search, Filter, Shield, UserX, UserCheck, Edit, Key, Download, AlertCircle, RefreshCw } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newUser, setNewUser] = useState({ full_name: '', email: '', password: '', role: 'Mess Manager' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user: currentUser } = useAuth();
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+
+  // Modals state
+  const [editUser, setEditUser] = useState(null); // {id, full_name, email}
+  const [resetUser, setResetUser] = useState(null); // {id, full_name}
+  const [newPassword, setNewPassword] = useState('');
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
-      const res = await api.get('/users');
-      setUsers(res.data);
+      const response = await api.get('/users');
+      setUsers(response.data);
     } catch (error) {
       toast.error('Failed to load users');
     }
@@ -27,155 +29,186 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
-  const handleRoleChange = async (userId, newRole) => {
+  const handleToggleStatus = async (id, currentStatus) => {
     try {
-      await api.put(`/users/${userId}/role`, { role: newRole });
-      toast.success('User role updated');
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update role');
-    }
-  };
-
-  const handleStatusChange = async (userId, isActive) => {
-    try {
-      await api.put(`/users/${userId}/status`, { is_active: isActive });
-      toast.success(`User ${isActive ? 'activated' : 'deactivated'}`);
+      await api.put(`/users/${id}/status`, { is_active: !currentStatus });
+      toast.success(currentStatus ? 'User deactivated' : 'User activated');
       fetchUsers();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to update status');
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  const handleRoleChange = async (id, newRole) => {
     try {
-      await api.delete(`/users/${userId}`);
-      toast.success('User deleted successfully');
+      await api.put(`/users/${id}/role`, { role: newRole });
+      toast.success('Role updated successfully');
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete user');
+      toast.error(error.response?.data?.detail || 'Failed to update role');
     }
   };
 
-  const handleAddUser = async (e) => {
+  const submitEditUser = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await api.post('/users', newUser);
-      toast.success('User created successfully');
-      setShowAddModal(false);
-      setNewUser({ full_name: '', email: '', password: '', role: 'Mess Manager' });
-      fetchUsers();
+       await api.put(`/users/${editUser.id}`, { full_name: editUser.full_name, email: editUser.email });
+       toast.success('User updated successfully');
+       setEditUser(null);
+       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create user');
+       toast.error(error.response?.data?.detail || 'Failed to update user');
     }
-    setIsSubmitting(false);
   };
 
-  const filteredUsers = users.filter(u => 
-    (u.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const submitResetPassword = async (e) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+       toast.error("Password must be at least 6 characters");
+       return;
+    }
+    try {
+       await api.put(`/users/${resetUser.id}/password`, { new_password: newPassword });
+       toast.success('Password reset successfully');
+       setResetUser(null);
+       setNewPassword('');
+    } catch (error) {
+       toast.error('Failed to reset password');
+    }
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.full_name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter ? u.role === roleFilter : true;
+    return matchesSearch && matchesRole;
+  });
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-6xl mx-auto">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage administrators and mess managers.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Control access, roles, and account security for all platform users.</p>
         </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/20"
-        >
-          <Plus className="w-5 h-5" /> Add User
-        </button>
+        <div className="flex gap-2">
+           <button onClick={fetchUsers} className="px-3 py-2 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-xl hover:bg-slate-200 transition-colors"><RefreshCw className="w-5 h-5"/></button>
+           <button className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium rounded-xl flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+             <Download className="w-4 h-4" /> Export Users
+           </button>
+        </div>
       </div>
 
-      <div className="glass-card overflow-hidden">
-        <div className="p-4 border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-            <input 
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-          </div>
+      <div className="glass-card flex flex-col min-h-[600px] relative">
+        {/* Toolbar */}
+        <div className="p-4 border-b dark:border-slate-800 flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-50/50 dark:bg-slate-900/20 rounded-t-2xl">
+           <div className="relative w-full md:w-96">
+             <Search className="absolute left-3 top-2.5 w-5 h-5 text-slate-400" />
+             <input 
+               type="text" 
+               placeholder="Search name or email..." 
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+               className="w-full pl-10 pr-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+             />
+           </div>
+           
+           <div className="relative w-full md:w-48">
+             <Filter className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+             <select 
+               value={roleFilter}
+               onChange={(e) => setRoleFilter(e.target.value)}
+               className="w-full pl-9 pr-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none"
+             >
+               <option value="">All Roles</option>
+               <option value="Administrator">Administrator</option>
+               <option value="Mess Manager">Mess Manager</option>
+               <option value="User">User</option>
+             </select>
+           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Data Grid */}
+        <div className="flex-1 overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-sm border-b dark:border-slate-800">
-                <th className="p-4 font-medium">Name</th>
-                <th className="p-4 font-medium">Email</th>
-                <th className="p-4 font-medium">Role</th>
-                <th className="p-4 font-medium">Status</th>
-                <th className="p-4 font-medium">Registration Date</th>
-                <th className="p-4 font-medium">Actions</th>
+              <tr className="border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">User Details</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Role</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Status</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Stats</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="p-8 text-center text-slate-400">Loading users...</td>
+                  <td colSpan="5" className="p-8 text-center">
+                    <div className="flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div></div>
+                  </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="p-16 text-center text-slate-400">No users found</td>
+                  <td colSpan="5" className="p-16 text-center text-slate-400">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                    <p>No users found.</p>
+                  </td>
                 </tr>
               ) : (
                 filteredUsers.map((u) => (
-                  <tr key={u.id} className="border-b dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/25 transition-colors">
-                    <td className="p-4 font-medium">{u.full_name}</td>
-                    <td className="p-4 text-slate-600 dark:text-slate-400">{u.email}</td>
+                  <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="p-4">
-                      <select 
-                        value={u.role}
-                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                        className={`text-xs font-semibold px-2 py-1 rounded outline-none cursor-pointer ${
-                          u.role === 'Administrator' 
-                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800' 
-                            : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                        }`}
-                      >
-                        <option value="Administrator">Administrator</option>
-                        <option value="Mess Manager">Mess Manager</option>
-                      </select>
+                      <div className="flex items-center gap-3">
+                         <img src={u.avatar || `https://ui-avatars.com/api/?name=${u.full_name}&background=10b981&color=fff`} className="w-10 h-10 rounded-full" />
+                         <div>
+                            <div className="font-semibold text-sm">{u.full_name}</div>
+                            <div className="text-xs text-slate-500">{u.email}</div>
+                         </div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                       <select 
+                         value={u.role}
+                         onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                         className={`px-2 py-1 rounded border text-xs font-semibold outline-none ${
+                           u.role === 'Administrator' ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-400' :
+                           u.role === 'Mess Manager' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400' :
+                           'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400'
+                         }`}
+                       >
+                         <option value="Administrator">Administrator</option>
+                         <option value="Mess Manager">Mess Manager</option>
+                         <option value="User">User</option>
+                       </select>
                     </td>
                     <td className="p-4">
                       {u.is_active ? (
-                        <span className="flex items-center gap-1 text-emerald-500 text-sm"><CheckCircle className="w-4 h-4"/> Active</span>
+                        <span className="px-2 py-1 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md text-xs font-semibold flex items-center gap-1 w-max">
+                          <UserCheck className="w-3 h-3" /> Active
+                        </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-rose-500 text-sm"><XCircle className="w-4 h-4"/> Inactive</span>
+                        <span className="px-2 py-1 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-md text-xs font-semibold flex items-center gap-1 w-max">
+                          <UserX className="w-3 h-3" /> Inactive
+                        </span>
                       )}
                     </td>
-                    <td className="p-4 text-sm text-slate-500">{new Date(u.created_at).toLocaleDateString()}</td>
-                    <td className="p-4">
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleStatusChange(u.id, !u.is_active)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            u.is_active 
-                              ? 'text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40' 
-                              : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40'
-                          }`}
-                          title={u.is_active ? "Deactivate User" : "Activate User"}
-                        >
-                          {u.is_active ? <ShieldAlert className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(u.id)}
-                          className="p-2 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 transition-colors"
-                          title="Delete User"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <td className="p-4 text-xs text-slate-500 space-y-1">
+                      <div><strong className="text-slate-700 dark:text-slate-300">{u.total_predictions}</strong> Preds</div>
+                      <div><strong className="text-slate-700 dark:text-slate-300">{u.total_image_analyses}</strong> Images</div>
+                    </td>
+                    <td className="p-4 text-right space-x-2">
+                       <button onClick={() => setEditUser(u)} className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="Edit User">
+                         <Edit className="w-4 h-4" />
+                       </button>
+                       <button onClick={() => setResetUser(u)} className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors" title="Reset Password">
+                         <Key className="w-4 h-4" />
+                       </button>
+                       <button 
+                         onClick={() => handleToggleStatus(u.id, u.is_active)}
+                         className={`p-2 rounded-lg transition-colors ${u.is_active ? 'text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30' : 'text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'}`}
+                         title={u.is_active ? "Deactivate" : "Activate"}
+                       >
+                         <Shield className="w-4 h-4" />
+                       </button>
                     </td>
                   </tr>
                 ))
@@ -185,68 +218,44 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Add User Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b dark:border-slate-800">
-              <h3 className="text-xl font-bold">Create New User</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleAddUser} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
-                <input 
-                  type="text" required
-                  value={newUser.full_name} onChange={e => setNewUser({...newUser, full_name: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  placeholder="John Doe"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-                <input 
-                  type="email" required
-                  value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  placeholder="john@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                <input 
-                  type="password" required minLength={8}
-                  value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  placeholder="Min 8 characters"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
-                <select 
-                  value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-                >
-                  <option value="Mess Manager">Mess Manager</option>
-                  <option value="Administrator">Administrator</option>
-                </select>
-              </div>
-              <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl font-medium border dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" disabled={isSubmitting}
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Creating...' : 'Create User'}
-                </button>
-              </div>
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold mb-4">Edit User</h3>
+            <form onSubmit={submitEditUser} className="space-y-4">
+               <div>
+                  <label className="block text-sm font-medium mb-1">Full Name</label>
+                  <input type="text" value={editUser.full_name} onChange={e => setEditUser({...editUser, full_name: e.target.value})} className="w-full px-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-emerald-500" required />
+               </div>
+               <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <input type="email" value={editUser.email} onChange={e => setEditUser({...editUser, email: e.target.value})} className="w-full px-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-emerald-500" required />
+               </div>
+               <div className="flex justify-end gap-3 pt-4">
+                  <button type="button" onClick={() => setEditUser(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600">Save Changes</button>
+               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Modal */}
+      {resetUser && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold mb-4">Reset Password</h3>
+            <p className="text-sm text-slate-500 mb-4">Set a new password for <strong>{resetUser.full_name}</strong>.</p>
+            <form onSubmit={submitResetPassword} className="space-y-4">
+               <div>
+                  <label className="block text-sm font-medium mb-1">New Password</label>
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-emerald-500" required />
+               </div>
+               <div className="flex justify-end gap-3 pt-4">
+                  <button type="button" onClick={() => { setResetUser(null); setNewPassword(''); }} className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600">Reset Password</button>
+               </div>
             </form>
           </div>
         </div>

@@ -148,3 +148,53 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-08-08 08:25:32,759 - main - ERROR - HTTP Error 401: Could not validate credentials
 2026-08-08 08:25:32,819 - main - ERROR - HTTP Error 401: Could not validate credentials
 2026-08-08 08:25:46,376 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 09:39:52,425 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:39:54,352 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-08-08 09:39:55,864 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-08-08 09:40:06,801 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:40:06,837 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:40:06,853 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:40:06,884 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:40:30,750 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:00,137 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:00,146 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:09,138 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:09,145 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:09,150 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:09,164 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 09:41:23,630 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-08-08 15:45:10,274 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-08-08 15:45:14,869 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:15,932 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:16,177 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:16,333 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:16,456 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:21,308 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:21,326 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:24,226 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:24,232 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:24,252 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:24,273 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:28,611 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:28,635 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:28,669 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:28,720 - main - ERROR - HTTP Error 404: Not Found
+2026-08-08 15:45:34,686 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-08-08 15:45:34,750 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-08-08 15:45:37,634 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:40,884 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:41,990 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:42,498 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:42,543 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:42,704 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:42,861 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,034 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,206 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,470 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,613 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,747 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:43,902 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:44,169 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:44,356 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:44,666 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-08-08 15:45:49,736 - main - ERROR - HTTP Error 401: Incorrect email or password

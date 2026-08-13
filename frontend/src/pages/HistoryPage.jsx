@@ -1,178 +1,188 @@
 import { useState, useEffect } from 'react';
-import { Search, Download, FileText, ArrowUpDown } from 'lucide-react';
+import { Search, Filter, Download, ChevronLeft, ChevronRight, FileJson, AlertCircle } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
 export default function HistoryPage() {
-  const [logs, setLogs] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+  const [total, setTotal] = useState(0);
+  
+  // Pagination & Filters
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [mealType, setMealType] = useState('');
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
+  const fetchHistory = async () => {
+    setLoading(true);
     try {
-      // Fetch food logs (the API returns food logs)
-      const res = await api.get('/food-logs');
-      setLogs(res.data);
+      const response = await api.get('/history', {
+        params: { page, limit, search, category, meal_type: mealType }
+      });
+      setHistory(response.data.items);
+      setTotal(response.data.total);
     } catch (error) {
-      toast.error('Failed to load history');
+      toast.error('Failed to fetch history');
     }
     setLoading(false);
   };
 
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
+  useEffect(() => {
+    fetchHistory();
+  }, [page, category, mealType]); // Fetch on these changes
+
+  // Fetch on search submit
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setPage(1);
+    fetchHistory();
   };
 
-  const sortedLogs = [...logs].sort((a, b) => {
-    const aVal = a[sortConfig.key] || '';
-    const bVal = b[sortConfig.key] || '';
-    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const filteredLogs = sortedLogs.filter(log => 
-    (log.food_category || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (log.meal_type || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const exportCSV = () => {
-    const headers = ['Date', 'Category', 'Quantity (kg)', 'Meal Type'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredLogs.map(log => 
-        [log.date, log.food_category, log.quantity_kg, log.meal_type].join(',')
-      )
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'foodcycle_history.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('CSV Exported');
-    
-    api.post('/users/log', { action_type: 'Report Export', description: 'Exported history to CSV' }).catch(console.error);
-  };
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.text('FoodCycle AI - Recovery History', 14, 15);
-    
-    const tableColumn = ['Date', 'Category', 'Quantity (kg)', 'Meal Type'];
-    const tableRows = filteredLogs.map(log => [
-      log.date, 
-      log.food_category, 
-      log.quantity_kg, 
-      log.meal_type
-    ]);
-
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 25,
-    });
-    
-    doc.save('foodcycle_history.pdf');
-    toast.success('PDF Exported');
-    
-    api.post('/users/log', { action_type: 'Report Export', description: 'Exported history to PDF' }).catch(console.error);
-  };
+  const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-6xl mx-auto">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">History & Logs</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Review, filter, and export past food waste and prediction logs.</p>
+          <h1 className="text-3xl font-bold">Data History</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Review your past logs, predictions, and recovery methods.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={exportCSV} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium rounded-lg flex items-center gap-2 transition-colors border dark:border-slate-700">
-            <Download className="w-4 h-4" /> CSV
-          </button>
-          <button onClick={exportPDF} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg flex items-center gap-2 transition-colors">
-            <FileText className="w-4 h-4" /> PDF
-          </button>
-        </div>
+        <button className="px-4 py-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium rounded-xl flex items-center gap-2 hover:bg-emerald-100 transition-colors">
+          <Download className="w-4 h-4" /> Export CSV
+        </button>
       </div>
 
-      <div className="glass-card overflow-hidden">
-        <div className="p-4 border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-            <input 
-              type="text"
-              placeholder="Search category or meal type..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-          </div>
+      <div className="glass-card flex flex-col min-h-[600px]">
+        {/* Toolbar */}
+        <div className="p-4 border-b dark:border-slate-800 flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-50/50 dark:bg-slate-900/20 rounded-t-2xl">
+           <form onSubmit={handleSearchSubmit} className="relative w-full md:w-96">
+             <Search className="absolute left-3 top-2.5 w-5 h-5 text-slate-400" />
+             <input 
+               type="text" 
+               placeholder="Search by category or meal..." 
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+               className="w-full pl-10 pr-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+             />
+           </form>
+           
+           <div className="flex gap-4 w-full md:w-auto">
+             <div className="relative flex-1 md:w-40">
+               <Filter className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+               <select 
+                 value={category}
+                 onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+                 className="w-full pl-9 pr-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none"
+               >
+                 <option value="">All Categories</option>
+                 <option value="Vegetables">Vegetables</option>
+                 <option value="Fruits">Fruits</option>
+                 <option value="Grains">Grains</option>
+                 <option value="Meat">Meat</option>
+                 <option value="Dairy">Dairy</option>
+                 <option value="Mixed">Mixed</option>
+               </select>
+             </div>
+             <div className="relative flex-1 md:w-40">
+               <Filter className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+               <select 
+                 value={mealType}
+                 onChange={(e) => { setMealType(e.target.value); setPage(1); }}
+                 className="w-full pl-9 pr-4 py-2 rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none"
+               >
+                 <option value="">All Meals</option>
+                 <option value="breakfast">Breakfast</option>
+                 <option value="lunch">Lunch</option>
+                 <option value="dinner">Dinner</option>
+                 <option value="all_day">All Day</option>
+               </select>
+             </div>
+           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Data Grid */}
+        <div className="flex-1 overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-sm border-b dark:border-slate-800">
-                <th className="p-4 font-medium cursor-pointer hover:text-emerald-500 transition-colors" onClick={() => handleSort('date')}>
-                  <div className="flex items-center gap-2">Date <ArrowUpDown className="w-4 h-4" /></div>
-                </th>
-                <th className="p-4 font-medium cursor-pointer hover:text-emerald-500 transition-colors" onClick={() => handleSort('food_category')}>
-                  <div className="flex items-center gap-2">Category <ArrowUpDown className="w-4 h-4" /></div>
-                </th>
-                <th className="p-4 font-medium cursor-pointer hover:text-emerald-500 transition-colors" onClick={() => handleSort('quantity_kg')}>
-                  <div className="flex items-center gap-2">Quantity (kg) <ArrowUpDown className="w-4 h-4" /></div>
-                </th>
-                <th className="p-4 font-medium cursor-pointer hover:text-emerald-500 transition-colors" onClick={() => handleSort('meal_type')}>
-                  <div className="flex items-center gap-2">Meal Type <ArrowUpDown className="w-4 h-4" /></div>
-                </th>
+              <tr className="border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Date</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Meal Type</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Category</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Quantity (kg)</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Prediction (kg)</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Recovery</th>
+                <th className="p-4 font-semibold text-slate-600 dark:text-slate-300 text-sm">Status</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-slate-400">Loading history...</td>
+                  <td colSpan="7" className="p-8 text-center">
+                    <div className="flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div></div>
+                  </td>
                 </tr>
-              ) : filteredLogs.length === 0 ? (
+              ) : history.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-16 text-center text-slate-400">
-                    <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
-                      <FileText className="w-8 h-8" />
-                    </div>
-                    <p className="font-medium text-lg">No records found</p>
-                    <p className="text-sm">Try adjusting your search criteria.</p>
+                  <td colSpan="7" className="p-16 text-center text-slate-400">
+                    <FileJson className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                    <p>No records found matching your filters.</p>
                   </td>
                 </tr>
               ) : (
-                filteredLogs.map((log) => (
-                  <tr key={log.id} className="border-b dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/25 transition-colors">
-                    <td className="p-4 whitespace-nowrap text-sm font-medium">{log.date}</td>
-                    <td className="p-4">
-                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-medium">
-                        {log.food_category}
+                history.map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="p-4 text-sm whitespace-nowrap">{row.date}</td>
+                    <td className="p-4 text-sm capitalize">{row.meal_type}</td>
+                    <td className="p-4 text-sm font-medium">{row.food_category}</td>
+                    <td className="p-4 text-sm font-bold text-slate-900 dark:text-white">{row.quantity_kg}</td>
+                    <td className="p-4 text-sm">
+                      {row.prediction ? <span className="text-emerald-500 font-semibold">{row.prediction}</span> : <span className="text-slate-400">-</span>}
+                    </td>
+                    <td className="p-4 text-sm">
+                      {row.recovery ? (
+                         <span className="px-2 py-1 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-md text-xs font-semibold">
+                           {row.recovery}
+                         </span>
+                      ) : (
+                         <span className="text-slate-400">-</span>
+                      )}
+                    </td>
+                    <td className="p-4 text-sm">
+                      <span className="px-2 py-1 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md text-xs font-semibold flex items-center gap-1 w-max">
+                        {row.status}
                       </span>
                     </td>
-                    <td className="p-4 font-semibold text-emerald-600 dark:text-emerald-400">{log.quantity_kg} kg</td>
-                    <td className="p-4 text-sm text-slate-600 dark:text-slate-400">{log.meal_type}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="p-4 border-t dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20 rounded-b-2xl">
+           <div className="text-sm text-slate-500">
+             Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{(page - 1) * limit + (history.length > 0 ? 1 : 0)}</span> to <span className="font-semibold text-slate-700 dark:text-slate-300">{Math.min(page * limit, total)}</span> of <span className="font-semibold text-slate-700 dark:text-slate-300">{total}</span> entries
+           </div>
+           
+           <div className="flex gap-2">
+             <button 
+               onClick={() => setPage(p => Math.max(1, p - 1))}
+               disabled={page === 1}
+               className="p-2 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+             >
+               <ChevronLeft className="w-5 h-5" />
+             </button>
+             <button 
+               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+               disabled={page === totalPages || totalPages === 0}
+               className="p-2 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+             >
+               <ChevronRight className="w-5 h-5" />
+             </button>
+           </div>
         </div>
       </div>
     </div>

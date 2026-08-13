@@ -106,9 +106,9 @@ export default function RecoveryPage() {
                 )}
                 {liveRec.npk_estimation && (
                   <div className="mt-4 flex gap-4 text-sm font-semibold">
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 rounded-full">N: {liveRec.npk_estimation.N}</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full">P: {liveRec.npk_estimation.P}</span>
-                    <span className="px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 rounded-full">K: {liveRec.npk_estimation.K}</span>
+                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 rounded-full">N: {liveRec.npk_estimation.nitrogen}</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full">P: {liveRec.npk_estimation.phosphorus}</span>
+                    <span className="px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 rounded-full">K: {liveRec.npk_estimation.potassium}</span>
                   </div>
                 )}
               </div>

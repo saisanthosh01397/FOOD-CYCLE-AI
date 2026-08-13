@@ -1,214 +1,240 @@
 import { useState, useEffect } from 'react';
-import { Activity, Database, Server, Brain, Camera, CheckCircle2, XCircle, Leaf } from 'lucide-react';
+import { Activity, Database, Server, Brain, Camera, CheckCircle2, XCircle, Leaf, Users, AlertTriangle, PlusCircle, Clock, Search, Settings } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
-
-// We will compute chart data dynamically from /food-logs
+import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState(null);
-  const [adminStats, setAdminStats] = useState(null);
-  const [sysStatus, setSysStatus] = useState('loading');
-  const [chartData, setChartData] = useState([]);
   const { user } = useAuth();
+  const [analytics, setAnalytics] = useState(null);
+  const [sysStatus, setSysStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [dashRes, healthRes, logsRes] = await Promise.all([
-          api.get('/dashboard'),
-          api.get('/health'),
-          api.get('/food-logs')
+        const [dashRes, healthRes] = await Promise.all([
+          api.get('/dashboard/analytics'),
+          user?.role === 'Administrator' ? api.get('/dashboard/system-health') : Promise.resolve({ data: null })
         ]);
-        setStats(dashRes.data);
-        setSysStatus(healthRes.data.status === 'ok' ? 'ok' : 'error');
-        
-        // Aggregate food logs by day for chart
-        const logs = logsRes.data;
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const aggregated = {};
-        
-        logs.forEach(log => {
-          const date = new Date(log.date);
-          const dayName = days[date.getDay()];
-          if (!aggregated[dayName]) {
-            aggregated[dayName] = { name: dayName, recovered: 0 };
-          }
-          aggregated[dayName].recovered += log.quantity_kg;
-        });
-        
-        // Convert to array and sort (Mon to Sun)
-        const sortedData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => 
-          aggregated[day] || { name: day, recovered: 0 }
-        );
-        setChartData(sortedData);
-        
-        if (user?.role === 'Administrator') {
-          try {
-            const adminRes = await api.get('/dashboard/admin-stats');
-            setAdminStats(adminRes.data);
-          } catch (e) {
-            console.error('Failed to fetch admin stats', e);
-          }
-        }
+        setAnalytics(dashRes.data);
+        if (healthRes.data) setSysStatus(healthRes.data);
       } catch (error) {
         console.error(error);
-        setSysStatus('error');
+      } finally {
+        setLoading(false);
       }
     };
-    if (user) {
-      fetchDashboard();
-    }
+    if (user) fetchDashboard();
   }, [user]);
 
-  const StatusItem = ({ label, icon: Icon, status }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-      <div className="flex items-center gap-3">
-        <Icon className="w-5 h-5 text-slate-500" />
-        <span className="font-medium text-slate-700 dark:text-slate-300">{label}</span>
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
-      {status === 'ok' ? (
-        <div className="flex items-center gap-1 text-emerald-500 text-sm font-semibold">
-          <CheckCircle2 className="w-4 h-4" /> Operational
-        </div>
-      ) : status === 'loading' ? (
-        <div className="text-amber-500 text-sm font-semibold animate-pulse">Checking...</div>
-      ) : (
-        <div className="flex items-center gap-1 text-red-500 text-sm font-semibold">
-          <XCircle className="w-4 h-4" /> Offline
-        </div>
-      )}
-    </div>
-  );
+    );
+  }
 
+  // --- ADMINISTRATOR DASHBOARD ---
+  if (user?.role === 'Administrator') {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Control Center</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">System overview and platform management.</p>
+          </div>
+          <div className="flex gap-2">
+             <Link to="/users" className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 flex gap-2 items-center"><Users className="w-4 h-4"/> Manage Users</Link>
+             <Link to="/settings" className="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-700 flex gap-2 items-center"><Settings className="w-4 h-4"/> System Settings</Link>
+          </div>
+        </div>
+
+        {/* System Alerts */}
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-xl flex items-center gap-3 text-amber-700 dark:text-amber-400">
+          <AlertTriangle className="w-5 h-5" />
+          <span className="font-medium">Notice: System update scheduled for tomorrow 02:00 AM UTC. Expect 5 minutes of downtime.</span>
+        </div>
+
+        {/* Admin KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="glass-card p-6">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Users</h3>
+            <div className="mt-2 text-3xl font-bold">{sysStatus?.total_users || 0}</div>
+            <p className="text-xs text-slate-500 mt-1">{sysStatus?.active_users || 0} Active today</p>
+          </div>
+          <div className="glass-card p-6">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Waste Logged</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_waste?.toFixed(1) || 0} kg</div>
+          </div>
+          <div className="glass-card p-6">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Predictions</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_predictions || 0}</div>
+          </div>
+          <div className="glass-card p-6">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Images Analyzed</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_images || 0}</div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 glass-card p-6">
+            <h3 className="text-lg font-bold mb-4">Weekly Platform Activity (Waste Logged)</h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={analytics?.weekly_trend || []}>
+                  <defs>
+                    <linearGradient id="colorWaste" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                  <Area type="monotone" dataKey="waste" stroke="#10b981" strokeWidth={3} fill="url(#colorWaste)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="glass-card p-6 flex flex-col">
+            <h3 className="text-lg font-bold mb-4">System Health</h3>
+            <div className="space-y-4 flex-1">
+              {[
+                { label: 'Prophet Model', status: sysStatus?.prophet, icon: Brain },
+                { label: 'YOLOv8 Engine', status: sysStatus?.yolo, icon: Camera },
+                { label: 'Database Server', status: sysStatus?.database, icon: Database },
+                { label: 'FastAPI Backend', status: sysStatus?.server, icon: Server },
+              ].map((s, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-3">
+                    <s.icon className="w-5 h-5 text-slate-500" />
+                    <span className="font-medium">{s.label}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-emerald-500 text-sm font-semibold">
+                    <CheckCircle2 className="w-4 h-4" /> {s.status === 'ok' ? 'Operational' : 'Online'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- MESS MANAGER DASHBOARD ---
+  if (user?.role === 'Mess Manager') {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold">Operations Dashboard</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Track daily waste, predictions, and recovery metrics.</p>
+          </div>
+          <div className="flex gap-2">
+             <Link to="/prediction" className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 flex gap-2 items-center"><PlusCircle className="w-4 h-4"/> New Log</Link>
+             <Link to="/vision" className="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 flex gap-2 items-center"><Camera className="w-4 h-4"/> Analyze Image</Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="glass-card p-6 border-l-4 border-l-blue-500">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Waste Logged</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_waste?.toFixed(1) || 0} kg</div>
+          </div>
+          <div className="glass-card p-6 border-l-4 border-l-emerald-500">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Compost Generated</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_compost?.toFixed(1) || 0} kg</div>
+          </div>
+          <div className="glass-card p-6 border-l-4 border-l-amber-500">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Donations</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.total_donations?.toFixed(1) || 0} kg</div>
+          </div>
+          <div className="glass-card p-6 border-l-4 border-l-purple-500">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">CO₂ Emissions Saved</h3>
+            <div className="mt-2 text-3xl font-bold">{analytics?.kpis?.carbon_saved?.toFixed(1) || 0} kg</div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 glass-card p-6">
+            <h3 className="text-lg font-bold mb-4">Weekly Recovery Trends</h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={analytics?.weekly_trend || []}>
+                  <defs>
+                    <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                  <Area type="monotone" dataKey="recovered" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRecovered)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div className="glass-card p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+               <h3 className="text-lg font-bold">Recent Logs</h3>
+               <Link to="/history" className="text-emerald-500 text-sm font-semibold hover:underline">View All</Link>
+            </div>
+            <div className="space-y-3 flex-1 overflow-y-auto">
+              {analytics?.recent_logs?.length === 0 ? (
+                <div className="text-slate-400 text-sm text-center py-8">No logs available.</div>
+              ) : (
+                analytics?.recent_logs?.map((log, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <div>
+                       <div className="font-semibold text-sm">{log.food_category}</div>
+                       <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5"><Clock className="w-3 h-3"/> {log.date}</div>
+                    </div>
+                    <div className="font-bold text-emerald-600 dark:text-emerald-400">{log.quantity_kg}kg</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- USER DASHBOARD ---
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back. Here is what's happening with FoodCycle AI.</p>
-        </div>
-        <div className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow-sm ${user?.role === 'Administrator' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-          {user?.role}
-        </div>
-      </div>
-
-      {/* Admin Stats */}
-      {user?.role === 'Administrator' && adminStats && (
-        <div className="glass-card p-6 mb-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-          <h3 className="text-lg font-bold mb-4 text-purple-600 dark:text-purple-400">Administrator Overview</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-slate-500">Total Users</p>
-              <p className="text-2xl font-bold">{adminStats.total_users}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Administrators / Managers</p>
-              <p className="text-2xl font-bold">{adminStats.administrators} / {adminStats.mess_managers}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Waste Logged</p>
-              <p className="text-2xl font-bold">{adminStats.total_waste_logged?.toFixed(1)} kg</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Activity (Pred/Img/Rec)</p>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                {adminStats.total_predictions} / {adminStats.total_image_analyses} / {adminStats.total_recovery_recommendations}
-              </p>
-            </div>
+    <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="text-center py-10 glass-card">
+          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+             <Leaf className="w-10 h-10" />
           </div>
-        </div>
-      )}
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Waste Logged', value: `${stats?.total_waste?.toFixed(1) || 0} kg`, color: 'bg-blue-500' },
-          { label: 'Total Compost', value: `${stats?.total_compost?.toFixed(1) || 0} kg`, color: 'bg-emerald-500' },
-          { label: 'Total Donations', value: `${stats?.total_donations?.toFixed(1) || 0} meals`, color: 'bg-amber-500' },
-          { label: 'CO₂ Emissions Saved', value: `${stats?.carbon_saved?.toFixed(1) || 0} kg`, color: 'bg-purple-500' },
-        ].map((kpi, i) => (
-          <div key={i} className="glass-card p-6">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{kpi.label}</h3>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-bold">{kpi.value}</span>
-            </div>
-            <div className={`h-1 w-full rounded-full mt-4 opacity-20 ${kpi.color}`}>
-              <div className={`h-full rounded-full ${kpi.color}`} style={{ width: '70%' }}></div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Chart */}
-        <div className="lg:col-span-2 glass-card p-6">
-          <h3 className="text-lg font-bold mb-4">Weekly Recovery Trends</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-                <Area type="monotone" dataKey="recovered" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRecovered)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <h1 className="text-3xl font-bold mb-2">Welcome, {user?.full_name}!</h1>
+          <p className="text-slate-500 max-w-lg mx-auto">Upload images of food waste or log daily meals to get started with AI-driven sustainability recommendations.</p>
+          <div className="flex gap-4 justify-center mt-8">
+             <Link to="/vision" className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 flex gap-2 items-center"><Camera className="w-5 h-5"/> Analyze Image</Link>
+             <Link to="/prediction" className="px-6 py-3 bg-slate-800 text-white rounded-xl font-medium hover:bg-slate-700 shadow-lg flex gap-2 items-center"><Search className="w-5 h-5"/> Predict Waste</Link>
           </div>
         </div>
 
-        {/* AI System Status */}
-        <div className="glass-card p-6 flex flex-col">
-          <h3 className="text-lg font-bold mb-4">AI System Status</h3>
-          <div className="space-y-3 flex-1">
-            <StatusItem label="Prophet Engine" icon={Brain} status={sysStatus} />
-            <StatusItem label="Recovery RF Model" icon={Activity} status={sysStatus} />
-            <StatusItem label="YOLOv8 Vision" icon={Camera} status={sysStatus} />
-            <StatusItem label="MySQL Database" icon={Database} status={sysStatus} />
-            <StatusItem label="FastAPI Backend" icon={Server} status={sysStatus} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="glass-card p-6">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><History className="w-5 h-5 text-blue-500"/> My Recent Activity</h3>
+              <p className="text-sm text-slate-500 mb-4">You have {analytics?.kpis?.total_images || 0} images analyzed and {analytics?.kpis?.total_predictions || 0} predictions made.</p>
+              <Link to="/profile" className="text-emerald-500 text-sm font-semibold hover:underline">View My Profile &rarr;</Link>
+           </div>
+           <div className="glass-card p-6">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><Leaf className="w-5 h-5 text-emerald-500"/> Sustainability Impact</h3>
+              <p className="text-sm text-slate-500 mb-4">You've helped save {analytics?.kpis?.carbon_saved?.toFixed(1) || 0} kg of CO₂ emissions through intelligent recovery recommendations.</p>
+              <Link to="/history" className="text-emerald-500 text-sm font-semibold hover:underline">View My History &rarr;</Link>
+           </div>
         </div>
-      </div>
-
-      {/* Visual Workflow Component */}
-      <div className="glass-card p-8">
-        <h3 className="text-lg font-bold mb-6 text-center">FoodCycle Data Workflow</h3>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center">
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800">
-            <Camera className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-            <div className="font-semibold">Image Capture</div>
-            <div className="text-xs text-slate-500 mt-1">User uploads photo</div>
-          </div>
-          <div className="hidden md:block h-1 w-8 bg-emerald-500/20 rounded-full" />
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800">
-            <Activity className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-            <div className="font-semibold">YOLOv8 CV</div>
-            <div className="text-xs text-slate-500 mt-1">Classifies food category</div>
-          </div>
-          <div className="hidden md:block h-1 w-8 bg-emerald-500/20 rounded-full" />
-          <div className="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800">
-            <Brain className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-            <div className="font-semibold">Recovery AI</div>
-            <div className="text-xs text-slate-500 mt-1">Predicts optimal route</div>
-          </div>
-          <div className="hidden md:block h-1 w-8 bg-emerald-500/20 rounded-full" />
-          <div className="flex-1 p-4 rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
-            <Leaf className="w-8 h-8 mx-auto mb-2" />
-            <div className="font-semibold">Sustainability</div>
-            <div className="text-xs opacity-90 mt-1">NPK & CO₂ Impact</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ const navItems = [
   { name: 'Prediction', path: '/prediction', icon: PieChart },
   { name: 'Image Analysis', path: '/vision', icon: Camera },
   { name: 'Recovery', path: '/recovery', icon: Leaf },
-  { name: 'Analytics', path: '/analytics', icon: PieChart },
+  { name: 'Analytics', path: '/analytics', icon: PieChart, allowedRoles: ['Administrator', 'Mess Manager'] },
   { name: 'History', path: '/history', icon: History },
   { name: 'User Management', path: '/users', icon: User, adminOnly: true },
   { name: 'Profile', path: '/profile', icon: User },
@@ -53,6 +53,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed }) {
         <nav className="p-4 space-y-2">
           {navItems.map((item) => {
             if (item.adminOnly && user?.role !== 'Administrator') return null;
+            if (item.allowedRoles && !item.allowedRoles.includes(user?.role)) return null;
             return (
               <NavLink
                 key={item.name}
