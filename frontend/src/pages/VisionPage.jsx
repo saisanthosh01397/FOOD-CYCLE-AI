@@ -1,8 +1,45 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, Image as ImageIcon, Loader2, Leaf, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import {
+  UploadCloud, Image as ImageIcon, Leaf, ShieldAlert, CheckCircle2,
+  FlaskConical, Beaker, TestTube2, Wind, Scan, Zap, Brain, X
+} from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import PageHeader from '../components/ui/PageHeader';
+import { Card } from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import Badge from '../components/ui/Badge';
+import { motion, AnimatePresence } from 'framer-motion';
+import { fadeUp, scaleIn, staggerContainer, staggerItem, resultReveal } from '../utils/animations';
+
+// AI Scanning overlay shown while processing
+function AIScanningOverlay() {
+  return (
+    <div className="absolute inset-0 z-20 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4 rounded-xl">
+      {/* Scan animation */}
+      <div className="relative w-24 h-24">
+        <div className="absolute inset-0 rounded-full border-2 border-brand-500/30 animate-ping" />
+        <div className="absolute inset-2 rounded-full border-2 border-brand-500/50" style={{ animation: 'orbit-slow 3s linear infinite' }} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Scan className="w-8 h-8 text-brand-400" style={{ animation: 'leaf-glow 1.5s ease-in-out infinite' }} />
+        </div>
+        {/* Scan sweep line */}
+        <div className="absolute inset-0 overflow-hidden rounded-full">
+          <div
+            className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-brand-400 to-transparent"
+            style={{ animation: 'scan-sweep 1.8s ease-in-out infinite' }}
+          />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-brand-400 font-bold text-sm">YOLOv8 Analyzing...</p>
+        <p className="text-slate-400 text-xs mt-1">Processing image with neural network</p>
+      </div>
+    </div>
+  );
+}
 
 export default function VisionPage() {
   const [file, setFile] = useState(null);
@@ -16,14 +53,14 @@ export default function VisionPage() {
     if (selected) {
       setFile(selected);
       setPreview(URL.createObjectURL(selected));
-      setResult(null); // clear old result
+      setResult(null);
     }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/jpeg': [], 'image/png': [] },
-    maxSize: 10485760, // 10MB
+    maxSize: 10485760,
     multiple: false
   });
 
@@ -32,12 +69,10 @@ export default function VisionPage() {
       toast.error('Please upload an image first.');
       return;
     }
-    
     setLoading(true);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('quantity_kg', quantity);
-
     try {
       const response = await api.post('/vision/analyze-image', formData);
       setResult(response.data);
@@ -48,174 +83,291 @@ export default function VisionPage() {
     setLoading(false);
   };
 
-  return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold">Vision Analysis</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Upload a photo of food waste. YOLOv8 will classify it and our AI will recommend the best recovery strategy.
-        </p>
-      </div>
+  const clearImage = (e) => {
+    e.stopPropagation();
+    setFile(null);
+    setPreview(null);
+    setResult(null);
+  };
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Upload Section */}
-        <div className="space-y-6">
-          <div 
-            {...getRootProps()} 
-            className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors ${
-              isDragActive ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'border-slate-300 dark:border-slate-700 hover:border-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-900'
-            }`}
+  return (
+    <div className="space-y-6 max-w-6xl mx-auto">
+      <PageHeader
+        title="AI Vision Analysis"
+        description="Upload a food waste image. YOLOv8 will classify it and recommend the optimal recovery strategy."
+      />
+
+      <div className="grid lg:grid-cols-5 gap-6">
+
+        {/* ===== LEFT: Upload & Controls ===== */}
+        <div className="lg:col-span-2 space-y-5">
+          {/* Dropzone */}
+          <div
+            {...getRootProps()}
+            className={`relative rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer min-h-[260px] flex flex-col items-center justify-center overflow-hidden
+              ${isDragActive
+                ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10'
+                : 'border-slate-200 dark:border-slate-700 hover:border-brand-400 dark:hover:border-brand-700 bg-white dark:bg-slate-900/50'
+              }`}
           >
             <input {...getInputProps()} />
+
+            {/* AI scan overlay while loading */}
+            <AnimatePresence>
+              {loading && preview && <AIScanningOverlay />}
+            </AnimatePresence>
+
             {preview ? (
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md">
-                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <p className="text-white font-medium">Click or drag to change image</p>
+              <>
+                <img src={preview} alt="Preview" className="w-full h-full object-cover absolute inset-0 rounded-xl" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                  <p className="text-white text-sm font-semibold flex items-center gap-2">
+                    <UploadCloud className="w-4 h-4" /> Replace image
+                  </p>
                 </div>
-              </div>
+                {/* Clear button */}
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="absolute top-2 right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg z-10 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </>
             ) : (
-              <div className="flex flex-col items-center py-12">
-                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 text-emerald-500">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center text-center p-8"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center mb-4 text-brand-500">
                   <UploadCloud className="w-8 h-8" />
                 </div>
-                <p className="font-medium text-lg">Drag & Drop your image here</p>
-                <p className="text-sm text-slate-500 mt-2">Supports JPG, PNG up to 10MB</p>
-              </div>
+                <p className="font-bold text-slate-800 dark:text-slate-200 mb-1">Drop image here</p>
+                <p className="text-xs text-slate-500">or click to browse · JPG / PNG · max 10MB</p>
+              </motion.div>
             )}
           </div>
 
-          <div className="glass-card p-6">
-            <label className="block text-sm font-medium mb-2">Estimated Quantity (kg)</label>
-            <div className="flex gap-4">
-              <input
+          {/* Controls */}
+          <Card className="p-5">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+              Estimated Quantity
+            </label>
+            <div className="flex gap-3">
+              <Input
                 type="number"
                 step="0.1"
                 min="0.1"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="flex-1 px-4 py-2.5 rounded-xl border dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                placeholder="kg"
               />
-              <button 
+              <Button
                 onClick={handleAnalyze}
                 disabled={loading || !file}
-                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-xl flex items-center gap-2 transition-colors"
+                isLoading={loading}
+                icon={loading ? Scan : Zap}
+                className="shrink-0"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
-                Analyze Image
-              </button>
+                {loading ? 'Analyzing...' : 'Analyze'}
+              </Button>
             </div>
-          </div>
+          </Card>
+
+          {/* How it works */}
+          <Card className="p-5">
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">How It Works</h3>
+            <div className="space-y-3">
+              {[
+                { step: 1, icon: UploadCloud, label: 'Upload Image', desc: 'Photo of food waste' },
+                { step: 2, icon: Brain, label: 'YOLOv8 Detection', desc: 'Object detection + classification' },
+                { step: 3, icon: Leaf, label: 'Recovery AI', desc: 'Explainable recommendation' },
+              ].map((s) => (
+                <div key={s.step} className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0">
+                    <s.icon className="w-4 h-4 text-brand-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{s.label}</p>
+                    <p className="text-xs text-slate-500">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
 
-        {/* Results Section */}
-        <div className="glass-card p-6 md:p-8 flex flex-col min-h-[500px]">
-          {!result ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-              <ImageIcon className="w-16 h-16 opacity-20 mb-4" />
-              <p>Upload an image to see YOLOv8 detection results.</p>
-            </div>
-          ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 flex flex-col">
-              <div className="flex items-center justify-between border-b dark:border-slate-800 pb-4 mb-6">
-                <h3 className="text-xl font-bold">Analysis Results</h3>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" /> Success
-                </span>
-              </div>
-
-              <div className="space-y-6 flex-1">
-                {/* Annotated Image */}
-                {result.annotated_image && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Annotated YOLOv8 Output</h4>
-                    <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md border dark:border-slate-700">
-                      <img src={`/static/results/${result.annotated_image}`} alt="Annotated Output" className="w-full h-full object-cover" />
-                    </div>
+        {/* ===== RIGHT: Results ===== */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {!result ? (
+              <motion.div
+                key="empty"
+                variants={scaleIn}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="h-full min-h-[500px] flex items-center justify-center"
+              >
+                <Card className="w-full h-full min-h-[500px] flex flex-col items-center justify-center p-10 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5">
+                    <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                   </div>
-                )}
-
-                {/* Detected Objects Table/List */}
-                <div>
-                  <h4 className="font-semibold mb-2">Detected Objects</h4>
-                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border dark:border-slate-700 divide-y dark:divide-slate-700 max-h-40 overflow-y-auto">
-                    {result.all_detections?.map((det, idx) => (
-                      <div key={idx} className="p-3 flex justify-between items-center text-sm">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                          {det.food_category} <span className="text-xs text-slate-400">({det.raw_class})</span>
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-emerald-500 font-semibold">{(det.confidence * 100).toFixed(1)}%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Visual Confidence (Overall) */}
-                <div>
-                  <div className="flex justify-between text-sm mb-1 mt-2">
-                    <span className="text-slate-500">Overall Confidence</span>
-                    <span className="text-emerald-500 font-bold">{(result.confidence * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                    <div 
-                      className="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" 
-                      style={{ width: `${result.confidence * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Recommendation */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border dark:border-slate-700">
-                  <h4 className="flex items-center gap-2 font-semibold mb-3">
-                    <Leaf className="w-5 h-5 text-emerald-500" />
-                    Recovery Recommendation
-                  </h4>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                    {result.recovery_recommendation || 'No recommendation available'}
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-2">Awaiting Image</h3>
+                  <p className="text-sm text-slate-500 max-w-xs">
+                    Upload an image to see YOLOv8 detection results and Explainable AI recovery recommendations.
                   </p>
-                  
-                  {result.explainable_ai_reason && (
-                    <div className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-4 rounded-lg border dark:border-slate-800">
-                      <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-white block mb-1">AI Reasoning (SHAP)</span>
-                        {result.explainable_ai_reason}
-                      </div>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="results"
+                variants={fadeUp}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <Card className="p-6">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">Analysis Results</h3>
                     </div>
-                  )}
-                </div>
-
-                {/* Sustainability Metrics (NPK and Carbon) */}
-                <div>
-                  <h4 className="font-semibold mb-3">Estimated Impact & Resource Output</h4>
-                  <div className="grid grid-cols-4 gap-3">
-                    {result.npk_values && (
-                      <>
-                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-emerald-50 dark:bg-emerald-900/10">
-                          <div className="text-xs text-slate-500 mb-1">Nitrogen</div>
-                          <div className="font-bold text-emerald-600 dark:text-emerald-400">{result.npk_values.nitrogen}</div>
-                        </div>
-                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-blue-50 dark:bg-blue-900/10">
-                          <div className="text-xs text-slate-500 mb-1">Phosphorus</div>
-                          <div className="font-bold text-blue-600 dark:text-blue-400">{result.npk_values.phosphorus}</div>
-                        </div>
-                        <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-amber-50 dark:bg-amber-900/10">
-                          <div className="text-xs text-slate-500 mb-1">Potassium</div>
-                          <div className="font-bold text-amber-600 dark:text-amber-400">{result.npk_values.potassium}</div>
-                        </div>
-                      </>
-                    )}
-                    <div className="text-center p-3 rounded-lg border dark:border-slate-700 bg-purple-50 dark:bg-purple-900/10">
-                      <div className="text-xs text-slate-500 mb-1">CO₂ Saved</div>
-                      <div className="font-bold text-purple-600 dark:text-purple-400">{(quantity * 1.5).toFixed(1)}kg</div>
-                    </div>
+                    <Badge variant="success" icon={CheckCircle2}>Complete</Badge>
                   </div>
-                </div>
-              </div>
-            </div>
-          )}
+
+                  <motion.div
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                    className="space-y-6"
+                  >
+                    {/* Annotated image */}
+                    {result.annotated_image && (
+                      <motion.div variants={staggerItem}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">YOLOv8 Output</h4>
+                        <div className="rounded-xl overflow-hidden border border-[var(--border)] shadow-sm">
+                          <img
+                            src={`/static/results/${result.annotated_image}`}
+                            alt="Annotated"
+                            className="w-full object-cover"
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      {/* Detections */}
+                      <motion.div variants={staggerItem}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Detected Objects</h4>
+                        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-[var(--border)] overflow-hidden">
+                          {result.all_detections?.map((det, idx) => (
+                            <motion.div
+                              key={idx}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.08 }}
+                              className="flex items-center justify-between px-4 py-3 border-b last:border-b-0 border-[var(--border)]"
+                            >
+                              <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                {det.food_category}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                  <motion.div
+                                    className="h-full bg-brand-500 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${det.confidence * 100}%` }}
+                                    transition={{ delay: 0.3 + idx * 0.08, duration: 0.6 }}
+                                  />
+                                </div>
+                                <Badge variant="primary">{(det.confidence * 100).toFixed(0)}%</Badge>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        {/* Confidence bar */}
+                        <div className="mt-4">
+                          <div className="flex justify-between text-xs font-semibold text-slate-500 mb-1.5">
+                            <span>Model Confidence</span>
+                            <span className="text-brand-600 dark:text-brand-400">{(result.confidence * 100).toFixed(1)}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-brand-500 to-accent-500 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${result.confidence * 100}%` }}
+                              transition={{ delay: 0.4, duration: 0.9, ease: 'easeOut' }}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Recovery recommendation */}
+                      <motion.div variants={staggerItem}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">AI Recovery Strategy</h4>
+                        <div className="bg-brand-50 dark:bg-brand-950/30 rounded-xl p-5 border border-brand-200 dark:border-brand-900/50 h-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-7 h-7 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                              <Leaf className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                            </div>
+                            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">Primary Recommendation</span>
+                          </div>
+                          <p className="text-xl font-black text-slate-900 dark:text-white mb-4">
+                            {result.recovery_recommendation || 'No recommendation'}
+                          </p>
+                          {result.explainable_ai_reason && (
+                            <div className="bg-white/80 dark:bg-slate-900/60 rounded-xl p-3.5 border border-brand-200/50 dark:border-slate-800">
+                              <div className="flex items-start gap-2">
+                                <ShieldAlert className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
+                                <div>
+                                  <p className="text-xs font-bold text-slate-900 dark:text-white mb-1">XAI Reasoning (SHAP)</p>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{result.explainable_ai_reason}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    {/* Sustainability metrics */}
+                    <motion.div variants={staggerItem}>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Estimated Output & Impact</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {result.npk_values && (
+                          <>
+                            <div className="text-center p-4 rounded-xl border border-[var(--border)] bg-slate-50 dark:bg-slate-900/40">
+                              <FlaskConical className="w-5 h-5 text-emerald-500 mx-auto mb-2" />
+                              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Nitrogen</p>
+                              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">{result.npk_values.nitrogen}</p>
+                            </div>
+                            <div className="text-center p-4 rounded-xl border border-[var(--border)] bg-slate-50 dark:bg-slate-900/40">
+                              <Beaker className="w-5 h-5 text-blue-500 mx-auto mb-2" />
+                              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Phosphorus</p>
+                              <p className="text-lg font-black text-blue-600 dark:text-blue-400">{result.npk_values.phosphorus}</p>
+                            </div>
+                            <div className="text-center p-4 rounded-xl border border-[var(--border)] bg-slate-50 dark:bg-slate-900/40">
+                              <TestTube2 className="w-5 h-5 text-amber-500 mx-auto mb-2" />
+                              <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Potassium</p>
+                              <p className="text-lg font-black text-amber-600 dark:text-amber-400">{result.npk_values.potassium}</p>
+                            </div>
+                          </>
+                        )}
+                        <div className="text-center p-4 rounded-xl border border-[var(--border)] bg-slate-50 dark:bg-slate-900/40">
+                          <Wind className="w-5 h-5 text-purple-500 mx-auto mb-2" />
+                          <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">CO₂ Saved</p>
+                          <p className="text-lg font-black text-purple-600 dark:text-purple-400">{(quantity * 1.5).toFixed(1)} kg</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

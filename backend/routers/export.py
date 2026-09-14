@@ -3,7 +3,7 @@ from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User, UserActivityLog
-from models.food_log import FoodLog
+from models.food_log import FoodWasteLog
 from dependencies import get_current_active_user
 from services.prediction_service import prediction_service
 import pandas as pd
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/export", tags=["Data Export"])
 
 @router.get("/food-logs/csv")
 def export_food_logs_csv(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    logs = db.query(FoodLog).filter(FoodLog.user_id == current_user.id).all()
+    logs = db.query(FoodWasteLog).filter(FoodWasteLog.user_id == current_user.id).all()
     if not logs:
         return Response(content="No data available", status_code=204)
         
@@ -43,7 +43,7 @@ def export_food_logs_csv(db: Session = Depends(get_db), current_user: User = Dep
 
 @router.get("/food-logs/excel")
 def export_food_logs_excel(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    logs = db.query(FoodLog).filter(FoodLog.user_id == current_user.id).all()
+    logs = db.query(FoodWasteLog).filter(FoodWasteLog.user_id == current_user.id).all()
     if not logs:
         return Response(content="No data available", status_code=204)
         
