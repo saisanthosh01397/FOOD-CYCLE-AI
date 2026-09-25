@@ -1,27 +1,39 @@
 import os
 import logging
+import threading
 from datetime import date, timedelta
 import sys
-
-# Add backend directory to path if needed to ensure absolute imports work
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from ml_pipeline.models.prediction_pipeline import PredictionPipeline
 
 logger = logging.getLogger(__name__)
 
 class PredictionService:
     def __init__(self):
         self.pipeline = None
-        self.load_model()
+        self._lock = threading.Lock()
+        self._loaded = False
 
-    def load_model(self):
-        try:
-            self.pipeline = PredictionPipeline()
-            logger.info("Dish-level ML Pipeline loaded successfully.")
-        except Exception as e:
-            logger.error(f"Failed to load Dish-level ML Pipeline: {e}")
+    def _ensure_loaded(self):
+        """Lazy-load the prediction pipeline on first use."""
+        if self._loaded:
+            return
+        with self._lock:
+            if self._loaded:
+                return
+            try:
+                # Add backend directory to path for absolute imports
+                backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+                if backend_dir not in sys.path:
+                    sys.path.insert(0, backend_dir)
+                from ml_pipeline.models.prediction_pipeline import PredictionPipeline
+                self.pipeline = PredictionPipeline()
+                logger.info("Dish-level ML Pipeline loaded successfully.")
+            except Exception as e:
+                logger.error(f"Failed to load Dish-level ML Pipeline: {e}")
+                self.pipeline = None
+            self._loaded = True
 
     def predict(self, log_data: dict) -> dict:
+        self._ensure_loaded()
         if self.pipeline is None:
             return {"error": "Dish-level ML Pipeline not trained/loaded yet."}
             
@@ -37,7 +49,6 @@ class PredictionService:
             people = int(log_data.get('people', 150))
             menu_items = log_data.get('menu_items', None)
             
-            # Predict dish level forecast
             result = self.pipeline.predict_dish_level_forecast(
                 date_str=target_date_str, 
                 expected_attendance=people, 
@@ -50,4 +61,5 @@ class PredictionService:
             logger.error(f"Prediction failed: {e}")
             return {"error": str(e)}
 
+# Singleton — instantiated here but models NOT loaded until first predict() call
 prediction_service = PredictionService()

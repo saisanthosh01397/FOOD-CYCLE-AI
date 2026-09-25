@@ -8,13 +8,21 @@ from ml_pipeline.data_integration import DataIntegrationLayer
 class PredictionPipeline:
     def __init__(self):
         self.models_dir = os.path.join(os.path.dirname(__file__), "../saved_models")
+        # Models loaded lazily on first predict to reduce startup memory
+        self.demand_model = None
+        self.waste_model = None
+        self.category_mapping = None
+        self.macro_mapping = None
+        self.cat_to_code = {}
+        self.macro_to_code = {}
+        self.integration_layer = DataIntegrationLayer()
+        self._load_models()
+
+    def _load_models(self):
         self.demand_model = joblib.load(os.path.join(self.models_dir, "demand_model.pkl"))
         self.waste_model = joblib.load(os.path.join(self.models_dir, "waste_model.pkl"))
         self.category_mapping = joblib.load(os.path.join(self.models_dir, "category_mapping.pkl"))
         self.macro_mapping = joblib.load(os.path.join(self.models_dir, "macro_mapping.pkl"))
-        self.integration_layer = DataIntegrationLayer()
-        
-        # Reverse mappings
         self.cat_to_code = {v: k for k, v in self.category_mapping.items()}
         self.macro_to_code = {v: k for k, v in self.macro_mapping.items()}
 

@@ -357,3 +357,8 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-09-25 23:19:59,061 - main - ERROR - HTTP Error 401: Could not validate credentials
 2026-09-25 23:19:59,119 - main - ERROR - HTTP Error 401: Could not validate credentials
 2026-09-25 23:19:59,123 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 23:53:01,296 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:53:36,183 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:53:58,148 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:54:28,356 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:55:01,731 - main - INFO - FoodCycle AI FastAPI started.

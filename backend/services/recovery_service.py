@@ -1,8 +1,8 @@
 import os
-import joblib
+import logging
+import threading
 import pandas as pd
 import numpy as np
-import logging
 
 try:
     import shap
@@ -19,24 +19,34 @@ class RecoveryService:
         self.scaler = None
         self.target_encoder = None
         self.features = ['food_category_encoded', 'weight', 'moisture', 'freshness', 'contamination_level', 'organic_percentage']
-        self.load_models()
+        self._lock = threading.Lock()
+        self._loaded = False
 
-    def load_models(self):
-        models_dir = os.path.join(os.path.dirname(__file__), '../../models/saved_models')
-        try:
-            if os.path.exists(os.path.join(models_dir, 'recovery_model_v1.pkl')):
-                self.recovery_model = joblib.load(os.path.join(models_dir, 'recovery_model_v1.pkl'))
-                self.npk_model = joblib.load(os.path.join(models_dir, 'npk_model_v1.pkl'))
-                self.label_encoder = joblib.load(os.path.join(models_dir, 'label_encoder_v1.pkl'))
-                self.scaler = joblib.load(os.path.join(models_dir, 'scaler_v1.pkl'))
-                self.target_encoder = joblib.load(os.path.join(models_dir, 'target_encoder_v1.pkl'))
-                logger.info("Recovery and NPK models loaded successfully.")
-            else:
-                logger.warning("Recovery models not found.")
-        except Exception as e:
-            logger.error(f"Failed to load Recovery models: {e}")
+    def _ensure_loaded(self):
+        """Lazy-load recovery models on first recommend() call."""
+        if self._loaded:
+            return
+        with self._lock:
+            if self._loaded:
+                return
+            models_dir = os.path.join(os.path.dirname(__file__), '../../models/saved_models')
+            try:
+                import joblib
+                if os.path.exists(os.path.join(models_dir, 'recovery_model_v1.pkl')):
+                    self.recovery_model = joblib.load(os.path.join(models_dir, 'recovery_model_v1.pkl'))
+                    self.npk_model = joblib.load(os.path.join(models_dir, 'npk_model_v1.pkl'))
+                    self.label_encoder = joblib.load(os.path.join(models_dir, 'label_encoder_v1.pkl'))
+                    self.scaler = joblib.load(os.path.join(models_dir, 'scaler_v1.pkl'))
+                    self.target_encoder = joblib.load(os.path.join(models_dir, 'target_encoder_v1.pkl'))
+                    logger.info("Recovery and NPK models loaded successfully.")
+                else:
+                    logger.warning("Recovery models not found.")
+            except Exception as e:
+                logger.error(f"Failed to load Recovery models: {e}")
+            self._loaded = True
 
     def recommend(self, log_data: dict) -> dict:
+        self._ensure_loaded()
         if self.recovery_model is None:
             return {"error": "Model not trained yet."}
             
@@ -49,14 +59,11 @@ class RecoveryService:
             contamination = log_data.get('contamination_level', 10.0)
             organic = log_data.get('organic_percentage', 90.0)
             
-            print(f"[DEBUG] Processing category: {cat}, weight: {weight}")
             # Encode category
             try:
                 cat_encoded = self.label_encoder.transform([cat])[0]
             except ValueError:
-                cat_encoded = 0 # Default to first class if unseen
-            
-            print(f"[DEBUG] Category encoded: {cat_encoded}")
+                cat_encoded = 0  # Default to first class if unseen
                 
             # Create feature array
             raw_features = pd.DataFrame([{
@@ -85,7 +92,7 @@ class RecoveryService:
                 confidence = float(probs[pred_idx])
             else:
                 pred_idx = int(self.recovery_model.predict(X_df)[0])
-                confidence = 0.85 # Mock confidence if no predict_proba (unlikely for RF/XGB)
+                confidence = 0.85
                 
             pred_method = self.target_encoder.inverse_transform([pred_idx])[0]
             
@@ -95,16 +102,12 @@ class RecoveryService:
             phosphorus = max(0.0, float(npk[1]))
             potassium = max(0.0, float(npk[2]))
             
-            print(f"[DEBUG] SHAP/XAI starting for {pred_method}")
             # Explainable AI (XAI)
             try:
                 explanation, top_features = self.generate_explanation(X_df, pred_method, raw_features.iloc[0], cat)
             except Exception as ex:
-                print(f"[DEBUG] SHAP exception: {ex}")
+                logger.warning(f"XAI explanation failed: {ex}")
                 explanation, top_features = "Fallback explanation", []
-            print(f"[DEBUG] SHAP/XAI finished")
-            
-            print(f"[DEBUG] Recommendation complete: {pred_method}")
             
             return {
                 "recommended_method": pred_method,
@@ -120,7 +123,6 @@ class RecoveryService:
                 }
             }
         except Exception as e:
-            print(f"[DEBUG] Exception in recommend: {e}")
             logger.error(f"Recommendation failed: {e}")
             return {"error": str(e)}
             
@@ -128,13 +130,9 @@ class RecoveryService:
         top_features = []
         try:
             if shap is not None:
-                # Use SHAP TreeExplainer
                 explainer = shap.TreeExplainer(self.recovery_model)
                 shap_values = explainer.shap_values(X_df)
-                
-                # Check SHAP format based on model type (list for multi-class RF, array for XGB)
                 if isinstance(shap_values, list):
-                    # Get class index
                     class_idx = list(self.target_encoder.classes_).index(method)
                     vals = np.abs(shap_values[class_idx][0])
                 else:
@@ -143,21 +141,18 @@ class RecoveryService:
                         vals = np.abs(shap_values[0, :, class_idx])
                     else:
                         vals = np.abs(shap_values[0])
-                
-                feature_importance = pd.DataFrame(list(zip(self.features, vals)), columns=['feature','importance'])
+                feature_importance = pd.DataFrame(list(zip(self.features, vals)), columns=['feature', 'importance'])
                 feature_importance.sort_values(by='importance', ascending=False, inplace=True)
                 top_features = feature_importance['feature'].head(3).tolist()
             else:
-                # Fallback to feature importance
                 importances = self.recovery_model.feature_importances_
-                feature_importance = pd.DataFrame(list(zip(self.features, importances)), columns=['feature','importance'])
+                feature_importance = pd.DataFrame(list(zip(self.features, importances)), columns=['feature', 'importance'])
                 feature_importance.sort_values(by='importance', ascending=False, inplace=True)
                 top_features = feature_importance['feature'].head(3).tolist()
         except Exception as e:
             logger.warning(f"SHAP explanation failed, using fallback: {e}")
             top_features = ['organic_percentage', 'moisture', 'contamination_level']
             
-        # Generate human-readable string
         reasons = []
         for f in top_features:
             val = raw_vals.get(f.replace('_encoded', ''), None)
@@ -182,4 +177,5 @@ class RecoveryService:
     def get_history(self):
         return []
 
+# Singleton — models NOT loaded until recommend() is first called
 recovery_service = RecoveryService()
