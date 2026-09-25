@@ -17,6 +17,13 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self):
+        env_db_url = os.getenv("DATABASE_URL")
+        if env_db_url:
+            # If using standard mysql:// from some providers, replace with mysql+pymysql://
+            if env_db_url.startswith("mysql://"):
+                env_db_url = env_db_url.replace("mysql://", "mysql+pymysql://")
+            return env_db_url
+            
         from urllib.parse import quote_plus
         encoded_password = quote_plus(self.MYSQL_PASSWORD) if self.MYSQL_PASSWORD else ""
         return f"mysql+pymysql://{self.MYSQL_USER}:{encoded_password}@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}"
