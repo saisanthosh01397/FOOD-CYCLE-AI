@@ -9,6 +9,8 @@ from database import engine
 from routers import auth, food_logs, predictions, recovery, dashboard, health, vision, users, system, export, history, rescue
 
 # Configure Logging
+import os as _os
+_os.makedirs('logs', exist_ok=True)
 logging.basicConfig(
     filename='logs/app.log',
     level=logging.INFO,

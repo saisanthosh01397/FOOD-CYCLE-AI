@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 SQLAlchemy
 pydantic
 pydantic-settings
@@ -9,7 +9,7 @@ scikit-learn
 prophet
 pandas
 numpy
-opencv-python
+opencv-python-headless
 ultralytics
 joblib
 alembic
@@ -21,3 +21,5 @@ matplotlib
 seaborn
 shap
 python-multipart
+fpdf2
+openpyxl

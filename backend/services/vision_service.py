@@ -17,14 +17,14 @@ class VisionService:
         try:
             # We use official pretrained yolov8n.pt. 
             # In the future, this can be swapped with a custom food-waste dataset path.
-            model_path = "yolov8n.pt"
+            model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "yolov8n.pt")
             self.model = YOLO(model_path)
             logger.info(f"YOLOv8 model ({model_path}) loaded successfully.")
         except Exception as e:
             logger.error(f"Failed to load YOLO model: {e}")
             
     def load_mapping(self):
-        mapping_path = os.path.join(os.path.dirname(__file__), '../config/food_mapping.json')
+        mapping_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'food_mapping.json')
         try:
             if os.path.exists(mapping_path):
                 with open(mapping_path, 'r') as f:
