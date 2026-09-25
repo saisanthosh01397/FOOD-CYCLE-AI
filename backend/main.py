@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from database import engine
-from routers import auth, food_logs, predictions, recovery, dashboard, health, vision, users, system, export, history
+from routers import auth, food_logs, predictions, recovery, dashboard, health, vision, users, system, export, history, rescue
 
 # Configure Logging
 logging.basicConfig(
@@ -22,6 +22,17 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+from fastapi.middleware.cors import CORSMiddleware
+from config import settings
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Exception Handlers
@@ -69,6 +80,7 @@ app.include_router(users.router)
 app.include_router(system.router)
 app.include_router(export.router)
 app.include_router(history.router)
+app.include_router(rescue.router)
 
 from fastapi.staticfiles import StaticFiles
 import os

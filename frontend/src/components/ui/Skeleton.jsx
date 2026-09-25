@@ -18,7 +18,7 @@ export function Skeleton({ className }) {
 
 export function SkeletonCard({ className }) {
   return (
-    <div className={cn("bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 space-y-3", className)}>
+    <div className={cn("bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 space-y-3", className)}>
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-8 w-36" />
       <Skeleton className="h-3 w-20 opacity-60" />
@@ -30,7 +30,7 @@ export function SkeletonTable({ rows = 5, cols = 4 }) {
   return (
     <div className="space-y-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex gap-4 p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
+        <div key={i} className="flex gap-4 p-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl">
           {Array.from({ length: cols }).map((_, j) => (
             <Skeleton key={j} className="h-4 flex-1" style={{ opacity: 1 - j * 0.15 }} />
           ))}

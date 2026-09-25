@@ -5,13 +5,12 @@ import {
 } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import PageHeader from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { staggerContainer, staggerItem } from '../utils/animations';
+import { staggerContainer, staggerItem, pageDataReveal } from '../utils/animations';
 
 export default function HistoryPage() {
   const [history, setHistory] = useState([]);
@@ -32,52 +31,39 @@ export default function HistoryPage() {
       });
       setHistory(response.data.items);
       setTotal(response.data.total);
-    } catch (error) {
-      toast.error('Failed to fetch history');
-    }
+    } catch (error) { toast.error('Failed to fetch history'); }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchHistory();
-  }, [page, category, mealType]);
+  useEffect(() => { fetchHistory(); }, [page, category, mealType]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setPage(1);
-    fetchHistory();
-  };
-
+  const handleSearchSubmit = (e) => { e.preventDefault(); setPage(1); fetchHistory(); };
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="Data History"
-        description="Review your past food waste logs, predictions, and recovery methods."
-      >
-        <Button variant="outline" icon={Download} size="sm">Export CSV</Button>
-      </PageHeader>
+    <motion.div variants={pageDataReveal} initial="initial" animate="animate" exit="exit" className="space-y-6 max-w-[1600px] mx-auto min-h-[calc(100vh-100px)] flex flex-col">
+      
+      <div className="flex items-center justify-between shrink-0 mb-4">
+        <div>
+          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3">
+            <Database className="w-8 h-8 text-brand-500" /> Distributed Ledger
+          </h1>
+          <p className="text-[var(--text-muted)] font-medium mt-1">Immutable history of food waste logs, AI predictions, and recovery pathways.</p>
+        </div>
+        <Button variant="outline" icon={Download} size="lg" className="rounded-2xl border-[var(--border)] shadow-sm hidden sm:flex">Export CSV</Button>
+      </div>
 
-      <Card className="overflow-hidden">
+      <Card className="flex-1 overflow-hidden flex flex-col shadow-2xl rounded-3xl border-[var(--border)] bg-[var(--surface)]">
+        
         {/* Toolbar */}
-        <div className="p-4 border-b border-[var(--border)] bg-slate-50/50 dark:bg-slate-900/20 flex flex-col md:flex-row gap-3">
-          <form onSubmit={handleSearchSubmit} className="flex-1 md:max-w-sm">
-            <Input
-              icon={Search}
-              type="text"
-              placeholder="Search by category or meal..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="p-4 border-b border-[var(--border)] bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row gap-4 shrink-0">
+          <form onSubmit={handleSearchSubmit} className="flex-1 md:max-w-md relative group">
+            <div className="absolute inset-0 bg-brand-500/5 blur-xl group-focus-within:bg-brand-500/20 transition-all rounded-full pointer-events-none" />
+            <Input icon={Search} type="text" placeholder="Search operational ledger..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 bg-[var(--surface)] rounded-xl relative z-10" />
             <button type="submit" className="hidden" />
           </form>
           <div className="flex gap-3">
-            <Select
-              icon={Filter}
-              value={category}
-              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-            >
+            <Select icon={Filter} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="h-12 bg-[var(--surface)] rounded-xl w-40">
               <option value="">All Categories</option>
               <option value="Vegetables">Vegetables</option>
               <option value="Fruits">Fruits</option>
@@ -86,11 +72,7 @@ export default function HistoryPage() {
               <option value="Dairy">Dairy</option>
               <option value="Mixed">Mixed</option>
             </Select>
-            <Select
-              icon={Filter}
-              value={mealType}
-              onChange={(e) => { setMealType(e.target.value); setPage(1); }}
-            >
+            <Select icon={Filter} value={mealType} onChange={(e) => { setMealType(e.target.value); setPage(1); }} className="h-12 bg-[var(--surface)] rounded-xl w-40">
               <option value="">All Meals</option>
               <option value="breakfast">Breakfast</option>
               <option value="lunch">Lunch</option>
@@ -100,151 +82,92 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* Data Table */}
+        <div className="flex-1 overflow-x-auto relative">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-slate-50/80 dark:bg-slate-900/30">
-                {['Date', 'Meal', 'Category', 'Quantity (kg)', 'Predicted (kg)', 'Recovery', 'Status'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
+              <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black">
+                <th className="py-4 px-6 whitespace-nowrap">Timestamp</th>
+                <th className="py-4 px-6 whitespace-nowrap">Context</th>
+                <th className="py-4 px-6 whitespace-nowrap">Category</th>
+                <th className="py-4 px-6 whitespace-nowrap text-right">Logged (kg)</th>
+                <th className="py-4 px-6 whitespace-nowrap text-right text-brand-600 dark:text-brand-400"><Brain className="w-3 h-3 inline mr-1" /> Predicted</th>
+                <th className="py-4 px-6 whitespace-nowrap">Pathway</th>
+                <th className="py-4 px-6 whitespace-nowrap">Network Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border)]">
+            <motion.tbody variants={staggerContainer} initial="initial" animate="animate">
               {loading ? (
-                [...Array(5)].map((_, i) => (
-                  <tr key={i}>
-                    {[...Array(7)].map((_, j) => (
-                      <td key={j} className="px-4 py-4">
-                        <div className="h-4 skeleton rounded" style={{ width: `${60 + j * 5}%`, opacity: 1 - j * 0.1 }} />
-                      </td>
-                    ))}
+                [...Array(limit)].map((_, i) => (
+                  <tr key={i} className="border-b border-[var(--border)]">
+                    <td className="py-4 px-6"><div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded animate-pulse ml-auto" /></td>
+                    <td className="py-4 px-6"><div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse" /></td>
+                    <td className="py-4 px-6"><div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full animate-pulse" /></td>
                   </tr>
                 ))
               ) : history.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-20 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                        <Database className="w-7 h-7 text-slate-300 dark:text-slate-600" />
-                      </div>
-                      <p className="font-bold text-slate-900 dark:text-white">No records found</p>
-                      <p className="text-sm text-slate-500">No historical data matches your current filters.</p>
+                  <td colSpan={7}>
+                    <div className="flex flex-col items-center justify-center py-24 opacity-50">
+                      <Database className="w-12 h-12 text-[var(--text-muted)] mb-4" />
+                      <p className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest">No Records Found</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                <AnimatePresence>
-                  {history.map((row, i) => (
-                    <motion.tr
-                      key={row.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.25 }}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
-                    >
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{row.date}</span>
+                history.map((row, idx) => (
+                  <motion.tr 
+                    key={row.id} 
+                    variants={staggerItem}
+                    className="border-b border-[var(--border)] hover:bg-brand-500/5 dark:hover:bg-brand-500/10 transition-colors group cursor-default"
+                  >
+                    <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-[var(--text-secondary)] group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{row.date}</td>
+                    <td className="py-4 px-6 whitespace-nowrap text-sm capitalize text-[var(--text-secondary)] font-bold">{row.meal_type.replace('_', ' ')}</td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-brand-500 group-hover:text-white transition-colors">
+                          <Leaf className="w-3 h-3 text-[var(--text-muted)] group-hover:text-white" />
                         </div>
-                      </td>
-                      <td className="px-4 py-3.5 text-sm font-semibold capitalize text-slate-800 dark:text-slate-200">
-                        {row.meal_type}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <Leaf className="w-3.5 h-3.5 text-brand-500 shrink-0" />
-                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{row.food_category}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-sm font-black text-slate-900 dark:text-white">{row.quantity_kg}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {row.prediction ? (
-                          <div className="flex items-center gap-1.5">
-                            <Brain className="w-3.5 h-3.5 text-accent-500 shrink-0" />
-                            <span className="text-sm font-bold text-accent-600 dark:text-accent-400">{row.prediction}</span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {row.recovery ? (
-                          <Badge variant="primary" className="text-xs whitespace-nowrap">{row.recovery}</Badge>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Badge variant="success" className="text-xs">{row.status}</Badge>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
+                        <span className="text-sm font-medium text-[var(--text-primary)]">{row.food_category}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap text-sm text-right font-black text-[var(--text-primary)]">{row.quantity_kg ? row.quantity_kg.toFixed(1) : '—'}</td>
+                    <td className="py-4 px-6 whitespace-nowrap text-sm text-right font-bold text-brand-600 dark:text-brand-400">
+                      {row.prediction && row.prediction.total_expected_waste_kg !== undefined ? row.prediction.total_expected_waste_kg.toFixed(1) : '—'}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <Badge variant={row.recovery ? 'success' : 'secondary'} className="text-[10px]">
+                        {row.recovery || 'Unassigned'}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <Badge variant={row.status === 'Completed' ? 'success' : 'warning'} className="text-[10px]">
+                        {row.status}
+                      </Badge>
+                    </td>
+                  </motion.tr>
+                ))
               )}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="p-4 border-t border-[var(--border)] bg-slate-50/50 dark:bg-slate-900/20 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Showing{' '}
-            <span className="font-bold text-slate-900 dark:text-white">
-              {(page - 1) * limit + (history.length > 0 ? 1 : 0)}
-            </span>{' '}
-            to{' '}
-            <span className="font-bold text-slate-900 dark:text-white">
-              {Math.min(page * limit, total)}
-            </span>{' '}
-            of{' '}
-            <span className="font-bold text-slate-900 dark:text-white">{total}</span> entries
-          </p>
+        <div className="p-4 border-t border-[var(--border)] flex items-center justify-between shrink-0 bg-slate-50/50 dark:bg-slate-900/30">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            Showing <span className="text-[var(--text-primary)]">{(page - 1) * limit + 1}</span> to <span className="text-[var(--text-primary)]">{Math.min(page * limit, total)}</span> of <span className="text-[var(--text-primary)]">{total}</span>
+          </span>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-3"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                const pageNum = i + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${
-                      page === pageNum
-                        ? 'bg-brand-500 text-white'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages || totalPages === 0}
-              className="px-3"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+            <Button variant="outline" size="sm" icon={ChevronLeft} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded-xl px-4">Prev</Button>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="rounded-xl px-4">Next <ChevronRight className="w-4 h-4 ml-2" /></Button>
           </div>
         </div>
+
       </Card>
-    </div>
+    </motion.div>
   );
 }

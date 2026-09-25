@@ -51,7 +51,7 @@ class VisionService:
     def map_category(self, detected_name):
         return self.food_mapping.get(detected_name.lower())
         
-    def detect_food(self, image_path, result_path, conf_threshold=0.5):
+    def detect_food(self, image_path, result_path, conf_threshold=0.25):
         if self.model is None:
             raise RuntimeError("YOLO model not loaded.")
             
@@ -77,30 +77,21 @@ class VisionService:
                 
                 mapped_cat = self.map_category(cls_name)
                 
-                # If mapped_cat is None, it's either an unmapped food or non-food
+                # If mapped_cat is None, it means YOLO recognized an object (e.g. 'person') but it's not in our food mapping
                 if mapped_cat is None:
-                    mapped_cat = "Mixed Food Waste"
-                    approximate = True
-                else:
-                    approximate = False
+                    continue
                     
                 detected_objects.append({
                     "raw_class": cls_name,
                     "food_category": mapped_cat,
                     "confidence": round(conf, 2),
-                    "approximate_mapping": approximate,
                     "bbox": box.xyxy[0].tolist()
                 })
                 
         if not detected_objects:
-            # If nothing detected > conf_threshold
-            # Ensure we create a copy of the image if we didn't annotate anything
+            # If nothing detected > conf_threshold or detected non-food objects
             cv2.imwrite(result_path, img)
-            return [{
-                "food_category": "Unknown Food Category",
-                "confidence": 0.0,
-                "approximate_mapping": True
-            }]
+            return []
             
         return detected_objects
 

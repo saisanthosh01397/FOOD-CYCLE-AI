@@ -81,12 +81,12 @@ export default function Layout({ children }) {
         </main>
         
         <footer className="w-full border-t dark:border-slate-800/50 p-6 mt-auto bg-slate-50/50 dark:bg-slate-900/10">
-          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--text-muted)]">
             <div className="flex items-center gap-2">
               <Logo className="w-5 h-5 text-brand-500" />
-              <span className="font-semibold text-slate-700 dark:text-slate-300">FoodCycle AI &copy; 2026</span>
+              <span className="font-semibold text-[var(--text-secondary)]">FoodCycle AI &copy; 2026</span>
             </div>
-            <p>Developed by <strong className="text-slate-700 dark:text-slate-300">Sai Santhosh Bontha</strong> | Kalasalingam Academy of Research and Education</p>
+            <p>Developed by <strong className="text-[var(--text-secondary)]">Sai Santhosh Bontha</strong> | Kalasalingam Academy of Research and Education</p>
           </div>
         </footer>
       </div>

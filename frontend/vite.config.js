@@ -10,9 +10,14 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '^/(auth|food-logs|prediction|recovery|dashboard|health|vision|users|system|export|static)': {
+      '^/(auth|food-logs|prediction|recovery|rescue|dashboard|health|vision|users|system|export|history|static)': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+        bypass: function(req, res, proxyOptions) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) {
+            return req.url; // Skip proxy for frontend navigation
+          }
+        }
       }
     }
   }

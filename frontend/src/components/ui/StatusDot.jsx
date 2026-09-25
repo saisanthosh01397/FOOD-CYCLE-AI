@@ -35,7 +35,7 @@ export default function StatusDot({ status = 'ok', className, showLabel = true, 
           status === 'ok' || status === 'online' ? 'text-brand-600 dark:text-brand-400' :
           status === 'error' ? 'text-red-600 dark:text-red-400' :
           status === 'warning' ? 'text-amber-600 dark:text-amber-400' :
-          'text-slate-500 dark:text-slate-400'
+          'text-[var(--text-muted)]'
         )}>
           {displayLabel}
         </span>

@@ -1,50 +1,51 @@
 import os
-import joblib
-import pandas as pd
-from datetime import date, timedelta
 import logging
+from datetime import date, timedelta
+import sys
+
+# Add backend directory to path if needed to ensure absolute imports work
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from ml_pipeline.models.prediction_pipeline import PredictionPipeline
 
 logger = logging.getLogger(__name__)
 
 class PredictionService:
     def __init__(self):
-        self.model = None
+        self.pipeline = None
         self.load_model()
 
     def load_model(self):
         try:
-            model_path = os.path.join(os.path.dirname(__file__), '../../models/saved_models/prophet_model_v1.pkl')
-            if os.path.exists(model_path):
-                self.model = joblib.load(model_path)
-                logger.info("Prophet forecasting model loaded successfully.")
-            else:
-                logger.warning(f"Model file not found at {model_path}")
+            self.pipeline = PredictionPipeline()
+            logger.info("Dish-level ML Pipeline loaded successfully.")
         except Exception as e:
-            logger.error(f"Failed to load Prophet model: {e}")
+            logger.error(f"Failed to load Dish-level ML Pipeline: {e}")
 
     def predict(self, log_data: dict) -> dict:
-        if self.model is None:
-            return {"error": "Model not trained yet."}
+        if self.pipeline is None:
+            return {"error": "Dish-level ML Pipeline not trained/loaded yet."}
             
         try:
-            # Predict for tomorrow
-            tomorrow = date.today() + timedelta(days=1)
-            future = pd.DataFrame({'ds': [tomorrow]})
-            forecast = self.model.predict(future)
+            target_date_str = log_data.get('date')
+            if not target_date_str:
+                target_date_str = (date.today() + timedelta(days=1)).isoformat()
+                
+            meal_type = log_data.get('meal_type', 'Lunch').capitalize()
+            if meal_type.lower() == 'all_day':
+                meal_type = 'Lunch'
+                
+            people = int(log_data.get('people', 150))
+            menu_items = log_data.get('menu_items', None)
             
-            predicted_wasted_kg = float(forecast['yhat'].iloc[0])
-            # Prophet doesn't natively give a confidence percentage between 0 and 1, 
-            # but we can simulate a confidence score based on uncertainty intervals
-            yhat_lower = float(forecast['yhat_lower'].iloc[0])
-            yhat_upper = float(forecast['yhat_upper'].iloc[0])
-            interval = yhat_upper - yhat_lower
-            confidence = max(0.0, min(1.0, 1.0 - (interval / (predicted_wasted_kg + 1e-5))))
+            # Predict dish level forecast
+            result = self.pipeline.predict_dish_level_forecast(
+                date_str=target_date_str, 
+                expected_attendance=people, 
+                meal_type=meal_type,
+                menu_items=menu_items
+            )
             
-            return {
-                "prediction_date": tomorrow.isoformat(),
-                "predicted_quantity": round(predicted_wasted_kg, 2),
-                "confidence_score": round(confidence, 2)
-            }
+            return result
         except Exception as e:
             logger.error(f"Prediction failed: {e}")
             return {"error": str(e)}

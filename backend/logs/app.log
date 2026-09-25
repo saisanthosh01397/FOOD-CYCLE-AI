@@ -214,3 +214,146 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-08-24 07:23:25,887 - main - INFO - FoodCycle AI FastAPI started.
 2026-08-24 07:24:01,461 - main - ERROR - HTTP Error 405: Method Not Allowed
 2026-09-14 21:20:41,103 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-15 09:37:11,561 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-15 09:53:12,354 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 09:58:55,884 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-15 09:58:57,926 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-15 09:59:03,723 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 10:27:17,719 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-15 14:31:45,741 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-15 14:33:13,895 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 14:33:26,611 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 19:57:31,870 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 19:58:13,046 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-15 20:14:46,086 - main - ERROR - HTTP Error 404: Not Found
+2026-09-15 20:14:47,733 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 17:19:15,697 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-16 17:30:14,501 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 18:10:42,598 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-16 18:11:39,059 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 18:13:44,183 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycle.ai&password=securepassword123'}]
+2026-09-16 18:13:44,185 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-16 18:24:10,159 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycle.ai&password=securepassword123'}]
+2026-09-16 18:24:10,167 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-16 19:05:44,807 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:05:53,402 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:05:59,482 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:06:05,096 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:06:10,656 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:06:37,021 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:09:06,623 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:09:12,812 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:09:18,366 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:09:23,928 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:09:55,872 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:12:06,539 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:12:13,430 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:12:19,052 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:12:24,627 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:12:39,693 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:12:59,312 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:41:03,069 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:41:29,679 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:44:35,971 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:45:06,917 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:49:04,238 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-16 19:49:15,731 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:49:21,466 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:49:26,521 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:49:31,576 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:49:45,438 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:50:04,515 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:50:43,783 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:50:49,579 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:50:54,619 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 19:50:59,668 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 19:51:13,053 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 19:51:27,974 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 20:03:10,313 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:03:26,823 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:03:28,202 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:13:05,159 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:13:11,900 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:13:16,952 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:13:21,998 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:13:36,080 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 20:13:51,339 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 20:16:35,064 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:16:36,554 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:26,512 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:18:27,459 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:18:29,554 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:30,382 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:30,534 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:30,673 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:30,812 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:33,528 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:34,290 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:34,445 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:34,549 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:18:34,707 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:21:41,040 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:21:47,233 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:21:52,290 - main - ERROR - HTTP Error 404: Not Found
+2026-09-16 20:21:57,390 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:22:11,182 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 20:22:26,335 - main - ERROR - HTTP Error 401: Not authenticated
+2026-09-16 20:23:16,725 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-16 20:24:52,809 - main - ERROR - HTTP Error 405: Method Not Allowed
+2026-09-25 20:02:11,817 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:27:22,789 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:27:58,094 - main - ERROR - Unexpected Error: type object 'ImageMetadata' has no attribute 'log_id'
+2026-09-25 20:28:21,183 - main - ERROR - Unexpected Error: type object 'ImageMetadata' has no attribute 'log_id'
+2026-09-25 20:30:04,407 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:30:52,808 - main - ERROR - HTTP Error 400: Invalid file type. Only JPEG and PNG are allowed.
+2026-09-25 20:31:17,865 - main - ERROR - Unexpected Error: Invalid image or could not read the file.
+2026-09-25 20:35:18,289 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:36:18,025 - main - ERROR - Unexpected Error: Invalid image or could not read the file.
+2026-09-25 20:36:18,255 - main - ERROR - Unexpected Error: 'confidence_score' is an invalid keyword argument for RecoveryRecommendation
+2026-09-25 20:38:12,490 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:38:13,744 - main - ERROR - Unexpected Error: Invalid image or could not read the file.
+2026-09-25 20:41:10,707 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 20:41:12,739 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-25 20:41:12,818 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 20:41:13,271 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 20:41:58,785 - main - ERROR - HTTP Error 401: Incorrect email or password
+2026-09-25 20:41:58,837 - main - ERROR - HTTP Error 400: Email already registered
+2026-09-25 20:41:59,532 - main - ERROR - HTTP Error 403: Not enough privileges
+2026-09-25 21:20:19,361 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:20:28,985 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 21:42:16,893 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:43:15,174 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:44:46,461 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:45:29,791 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:50:34,686 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:51:31,237 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:55:37,923 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 21:57:12,080 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 22:04:28,308 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycleai.com&password=Admin%40123'}]
+2026-09-25 22:04:28,309 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-25 22:04:30,420 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 22:05:12,361 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycleai.com&password=Admin%40123'}]
+2026-09-25 22:05:12,361 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-25 22:05:14,420 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 22:06:06,698 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycleai.com&password=Admin%40123'}]
+2026-09-25 22:06:06,698 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-25 22:09:59,806 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 22:10:18,078 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 22:14:03,737 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 22:14:10,367 - main - ERROR - HTTP Error 404: Not Found
+2026-09-25 22:17:01,429 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 22:50:44,342 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycleai.com&password=Admin%40123'}]
+2026-09-25 22:50:44,352 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-25 22:51:00,979 - main - ERROR - Validation Error: [{'type': 'model_attributes_type', 'loc': ('body',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': b'username=admin%40foodcycleai.com&password=Admin%40123'}]
+2026-09-25 22:51:00,980 - main - ERROR - Unexpected Error: Object of type bytes is not JSON serializable
+2026-09-25 22:53:00,096 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 22:53:00,154 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 22:53:00,237 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 22:53:00,308 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 23:06:04,464 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:06:33,350 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:18:03,312 - main - INFO - FoodCycle AI FastAPI started.
+2026-09-25 23:19:59,050 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 23:19:59,061 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 23:19:59,119 - main - ERROR - HTTP Error 401: Could not validate credentials
+2026-09-25 23:19:59,123 - main - ERROR - HTTP Error 401: Could not validate credentials

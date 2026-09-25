@@ -6,11 +6,13 @@ from sqlalchemy.orm import Session
 from models.user import User, UserRole
 from schemas.user import UserCreate
 
+from config import settings
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key-replace-in-production"
+SECRET_KEY = getattr(settings, "JWT_SECRET_KEY", "your-secret-key-replace-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

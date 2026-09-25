@@ -107,7 +107,7 @@ async def analyze_image(
         status="Analyzed"
     )
     
-    top_cat = "Unknown Food Category"
+    top_cat = None
     top_conf = 0.0
     if detections:
         top_conf = max([d.get("confidence", 0.0) for d in detections])
@@ -115,7 +115,7 @@ async def analyze_image(
         
         # Get category of highest confidence object
         best_obj = max(detections, key=lambda x: x.get("confidence", 0.0))
-        top_cat = best_obj.get("food_category", "Unknown Food Category")
+        top_cat = best_obj.get("food_category")
         
     db.add(db_image)
     
@@ -123,21 +123,62 @@ async def analyze_image(
     current_user.total_image_analyses += 1
     
     # Log activity
-    log = UserActivityLog(user_id=current_user.id, action_type="Image Upload", description=f"Analyzed {unique_filename} and detected {top_cat}")
+    log = UserActivityLog(user_id=current_user.id, action_type="Image Upload", description=f"Analyzed {unique_filename} and detected {top_cat or 'Nothing'}")
     db.add(log)
     
     db.commit()
     db.refresh(db_image)
     
+    if not top_cat:
+        return {
+            "image_id": db_image.id,
+            "detected_category": None,
+            "confidence": 0.0,
+            "all_detections": [],
+            "error": "Food category not recognized by the current vision model.",
+            "annotated_image": result_filename
+        }
+    
     # 4. Call Recovery AI
     log_data = {
         "food_category": top_cat,
         "quantity_kg": quantity_kg,
-        # Default estimates or passed args could be used here if needed
-        # We rely on defaults in recovery_service for moisture, freshness, etc.
     }
     
     recovery_result = recovery_service.recommend(log_data)
+    
+    # Persist parent log
+    from datetime import datetime
+    from models.food_log import FoodWasteLog
+    from models.recovery import RecoveryRecommendation
+    
+    fwl = FoodWasteLog(
+        date=datetime.now().date(),
+        meal_type="Vision Scan",
+        food_category=top_cat,
+        quantity_kg=quantity_kg,
+        people_served=0
+    )
+    db.add(fwl)
+    db.commit()
+    db.refresh(fwl)
+    
+    # Associate Image
+    db_image.log_id = fwl.id
+    db.add(db_image)
+    
+    # Persist child recovery
+    npk = recovery_result.get("npk_estimation", {})
+    rr = RecoveryRecommendation(
+        log_id=fwl.id,
+        recommended_method=recovery_result.get("recommended_method", "Unknown"),
+        expected_output=0.0,
+        nitrogen=npk.get("nitrogen", 0.0),
+        phosphorus=npk.get("phosphorus", 0.0),
+        potassium=npk.get("potassium", 0.0)
+    )
+    db.add(rr)
+    db.commit()
     
     # Return aggregated response
     return {

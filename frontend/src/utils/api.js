@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/', // Proxied by Vite to http://127.0.0.1:8000
+  baseURL: import.meta.env.VITE_API_URL || '/', // Proxied by Vite in dev, direct to backend in prod
 });
 
 // Request interceptor to attach JWT token

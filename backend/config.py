@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     MYSQL_DATABASE: str = os.getenv("MYSQL_DATABASE", "foodcycle_ai")
     DEFAULT_ADMIN_EMAIL: str = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@foodcycleai.com")
     DEFAULT_ADMIN_PASSWORD: str = os.getenv("DEFAULT_ADMIN_PASSWORD", "FoodCycle@2026")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-replace-in-production")
+    ALLOWED_ORIGINS: list[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174").split(",")
 
     @property
     def DATABASE_URL(self):

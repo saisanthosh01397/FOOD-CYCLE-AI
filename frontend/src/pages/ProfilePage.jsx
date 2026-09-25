@@ -67,10 +67,10 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">
+              <h2 className="text-xl font-black text-[var(--text-primary)] mb-1">
                 {user?.full_name || user?.email?.split('@')[0] || 'User'}
               </h2>
-              <p className="text-sm text-slate-500 mb-4">{user?.email}</p>
+              <p className="text-sm text-[var(--text-muted)] mb-4">{user?.email}</p>
 
               <Badge
                 variant={user?.role === 'Administrator' ? 'admin' : user?.role === 'Mess Manager' ? 'info' : 'success'}
@@ -84,7 +84,7 @@ export default function ProfilePage() {
               {profileData && (
                 <div className="w-full space-y-3 mt-6 pt-6 border-t border-[var(--border)]">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                    <span className="text-[var(--text-muted)] font-medium flex items-center gap-1.5">
                       <Activity className="w-3.5 h-3.5" /> Status
                     </span>
                     {profileData.is_active ? (
@@ -98,18 +98,18 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                    <span className="text-[var(--text-muted)] font-medium flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5" /> Joined
                     </span>
-                    <span className="font-bold text-slate-900 dark:text-white text-xs">
+                    <span className="font-bold text-[var(--text-primary)] text-xs">
                       {new Date(profileData.created_at).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                    <span className="text-[var(--text-muted)] font-medium flex items-center gap-1.5">
                       <Hash className="w-3.5 h-3.5" /> User ID
                     </span>
-                    <span className="font-mono text-xs text-slate-500 truncate max-w-[80px]" title={profileData.id}>
+                    <span className="font-mono text-xs text-[var(--text-muted)] truncate max-w-[80px]" title={profileData.id}>
                       {profileData.id?.slice(0, 8)}...
                     </span>
                   </div>
@@ -142,7 +142,7 @@ export default function ProfilePage() {
           {/* Personal information */}
           <motion.div {...fadeUp}>
             <Card className="p-6">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-5 pb-4 border-b border-[var(--border)]">
+              <h3 className="text-base font-bold text-[var(--text-primary)] mb-5 pb-4 border-b border-[var(--border)]">
                 Account Information
               </h3>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -159,12 +159,12 @@ export default function ProfilePage() {
                   const IconEl = field.icon;
                   return (
                     <div key={field.label}>
-                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                         {field.label}
                       </label>
-                      <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-[var(--border)]">
-                        <IconEl className="w-4 h-4 text-slate-400 shrink-0" />
-                        <span className="font-semibold text-sm text-slate-900 dark:text-white truncate">
+                      <div className="flex items-center gap-3 px-4 py-3 bg-[var(--surface-elevated)] dark:bg-slate-800/30 rounded-xl border border-[var(--border)]">
+                        <IconEl className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                        <span className="font-semibold text-sm text-[var(--text-primary)] truncate">
                           {field.value || '—'}
                         </span>
                       </div>
@@ -189,10 +189,10 @@ export default function ProfilePage() {
                     <Brain className="w-7 h-7" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
                       Total Predictions
                     </p>
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">
+                    <p className="text-3xl font-black text-[var(--text-primary)]">
                       <AnimatedNumber value={profileData.total_predictions || 0} />
                     </p>
                   </div>
@@ -205,10 +205,10 @@ export default function ProfilePage() {
                     <Camera className="w-7 h-7" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
                       Image Analyses
                     </p>
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">
+                    <p className="text-3xl font-black text-[var(--text-primary)]">
                       <AnimatedNumber value={profileData.total_image_analyses || 0} />
                     </p>
                   </div>

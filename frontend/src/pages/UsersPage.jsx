@@ -5,42 +5,28 @@ import {
 } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import PageHeader from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { pageDataReveal, staggerContainer, staggerItem } from '../utils/animations';
 
-// Quick Modal Component
 function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-[var(--card)] border border-[var(--border)] shadow-2xl rounded-2xl w-full max-w-md overflow-hidden"
-      >
-        <div className="p-5 border-b border-[var(--border)] flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
-          <h3 className="font-bold text-lg text-slate-900 dark:text-white">{title}</h3>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-slate-500" />
-          </button>
-        </div>
-        <div className="p-6">
-          {children}
-        </div>
-      </motion.div>
-    </div>
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-[var(--surface)] border border-[var(--border)] shadow-2xl rounded-3xl w-full max-w-md overflow-hidden">
+          <div className="p-5 border-b border-[var(--border)] flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+            <h3 className="font-bold text-lg text-[var(--text-primary)] uppercase tracking-wider">{title}</h3>
+            <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors"><X className="w-5 h-5 text-[var(--text-muted)]" /></button>
+          </div>
+          <div className="p-6">{children}</div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 }
 
@@ -49,73 +35,50 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-
-  // Modals state
-  const [editUser, setEditUser] = useState(null); // {id, full_name, email}
-  const [resetUser, setResetUser] = useState(null); // {id, full_name}
-  const [newPassword, setNewPassword] = useState('');
+  
+  // Modals
+  const [editUser, setEditUser] = useState(null);
+  const [passUser, setPassUser] = useState(null);
+  const [newRole, setNewRole] = useState('');
+  const [newPass, setNewPass] = useState('');
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const response = await api.get('/users');
       setUsers(response.data);
-    } catch (error) {
-      toast.error('Failed to load users');
-    }
+    } catch (error) { toast.error('Failed to load network access list'); }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
       await api.put(`/users/${id}/status`, { is_active: !currentStatus });
-      toast.success(currentStatus ? 'User deactivated' : 'User activated');
+      toast.success(`User ${currentStatus ? 'deactivated' : 'activated'} successfully`);
       fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update status');
-    }
+    } catch (error) { toast.error('Status modification failed'); }
   };
 
-  const handleRoleChange = async (id, newRole) => {
-    try {
-      await api.put(`/users/${id}/role`, { role: newRole });
-      toast.success('Role updated successfully');
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update role');
-    }
-  };
-
-  const submitEditUser = async (e) => {
+  const handleUpdateRole = async (e) => {
     e.preventDefault();
     try {
-      await api.put(`/users/${editUser.id}`, { full_name: editUser.full_name, email: editUser.email });
-      toast.success('User updated successfully');
+      await api.put(`/users/${editUser.id}/role`, { role: newRole });
+      toast.success('Security clearance updated');
       setEditUser(null);
       fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update user');
-    }
+    } catch (error) { toast.error('Role update failed'); }
   };
 
-  const submitResetPassword = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
     try {
-      await api.put(`/users/${resetUser.id}/password`, { new_password: newPassword });
-      toast.success('Password reset successfully');
-      setResetUser(null);
-      setNewPassword('');
-    } catch (error) {
-      toast.error('Failed to reset password');
-    }
+      await api.put(`/users/${passUser.id}/password`, { new_password: newPass });
+      toast.success('Credentials forcefully reset');
+      setPassUser(null);
+      setNewPass('');
+    } catch (error) { toast.error('Password reset failed'); }
   };
 
   const filteredUsers = users.filter(u => {
@@ -125,232 +88,129 @@ export default function UsersPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="User Management"
-        description="Control access, roles, and account security for all platform users."
-      >
-        <div className="flex gap-2">
-          <Button variant="secondary" icon={RefreshCw} onClick={fetchUsers} className="px-3" />
-          <Button variant="outline" icon={Download}>Export Users</Button>
+    <motion.div variants={pageDataReveal} initial="initial" animate="animate" exit="exit" className="space-y-6 max-w-[1600px] mx-auto min-h-[calc(100vh-100px)] flex flex-col">
+      <div className="flex items-center justify-between shrink-0 mb-4">
+        <div>
+          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3">
+            <Shield className="w-8 h-8 text-brand-500" /> Network Access
+          </h1>
+          <p className="text-[var(--text-muted)] font-medium mt-1">Manage platform identities, security clearances, and operational status.</p>
         </div>
-      </PageHeader>
+      </div>
 
-      <Card className="overflow-hidden">
+      <Card className="flex-1 overflow-hidden flex flex-col shadow-2xl rounded-3xl border-[var(--border)] bg-[var(--surface)]">
         {/* Toolbar */}
-        <div className="p-4 border-b border-[var(--border)] bg-slate-50/50 dark:bg-slate-900/20 flex flex-col md:flex-row gap-3">
-          <div className="w-full md:w-96">
-            <Input
-              icon={Search}
-              type="text"
-              placeholder="Search name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="p-4 border-b border-[var(--border)] bg-slate-50/50 dark:bg-slate-900/30 flex flex-col md:flex-row gap-4 shrink-0">
+          <div className="flex-1 md:max-w-md relative group">
+             <div className="absolute inset-0 bg-brand-500/5 blur-xl group-focus-within:bg-brand-500/20 transition-all rounded-full pointer-events-none" />
+             <Input icon={Search} type="text" placeholder="Search identities..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-12 bg-[var(--surface)] rounded-xl relative z-10" />
           </div>
-
-          <div className="w-full md:w-56">
-            <Select
-              icon={Filter}
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="">All Roles</option>
+          <div className="flex gap-3">
+            <Select icon={Filter} value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="h-12 bg-[var(--surface)] rounded-xl w-48">
+              <option value="">All Clearances</option>
               <option value="Administrator">Administrator</option>
               <option value="Mess Manager">Mess Manager</option>
               <option value="User">User</option>
             </Select>
+            <Button variant="outline" icon={RefreshCw} onClick={fetchUsers} className="rounded-xl h-12 w-12 flex justify-center items-center shadow-sm" />
           </div>
         </div>
 
-        {/* Data Grid */}
-        <div className="overflow-x-auto">
+        {/* User Table */}
+        <div className="flex-1 overflow-x-auto relative">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-slate-50/80 dark:bg-slate-900/30">
-                {['User Details', 'Role', 'Status', 'Activity Stats', 'Security Actions'].map((h) => (
-                  <th key={h} className="px-5 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
+              <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-[var(--border)] text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black">
+                <th className="py-4 px-6">Identity</th>
+                <th className="py-4 px-6">Clearance</th>
+                <th className="py-4 px-6">System Status</th>
+                <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border)]">
+            <motion.tbody variants={staggerContainer} initial="initial" animate="animate">
               {loading ? (
                 [...Array(5)].map((_, i) => (
-                  <tr key={i}>
-                    {[...Array(5)].map((_, j) => (
-                      <td key={j} className="px-5 py-4">
-                        <div className="h-4 skeleton rounded" style={{ width: j === 0 ? '80%' : j === 4 ? '40%' : '60%', opacity: 1 - j * 0.1 }} />
-                      </td>
-                    ))}
-                  </tr>
+                  <tr key={i} className="border-b border-[var(--border)]"><td className="py-4 px-6"><div className="h-8 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td><td className="py-4 px-6"><div className="h-4 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td><td className="py-4 px-6"><div className="h-4 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /></td><td className="py-4 px-6 text-right"><div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded inline-block animate-pulse" /></td></tr>
                 ))
               ) : filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-5 py-20 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                        <Users className="w-7 h-7 text-slate-300 dark:text-slate-600" />
-                      </div>
-                      <p className="font-bold text-slate-900 dark:text-white">No users found</p>
-                      <p className="text-sm text-slate-500">Try adjusting your search or filters.</p>
-                    </div>
-                  </td>
-                </tr>
+                <tr><td colSpan={4}><div className="flex flex-col items-center justify-center py-24 opacity-50"><Users className="w-12 h-12 text-[var(--text-muted)] mb-4" /><p className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest">No Identities Match</p></div></td></tr>
               ) : (
-                <AnimatePresence>
-                  {filteredUsers.map((u, i) => (
-                    <motion.tr
-                      key={u.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.25 }}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group ${!u.is_active ? 'opacity-60 grayscale-[0.5]' : ''}`}
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                            {u.full_name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-                              {u.full_name}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
-                              <Mail className="w-3 h-3" /> {u.email}
-                            </p>
-                          </div>
+                filteredUsers.map((userRow) => (
+                  <motion.tr key={userRow.id} variants={staggerItem} className="border-b border-[var(--border)] hover:bg-brand-500/5 dark:hover:bg-brand-500/10 transition-colors group cursor-default">
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[var(--border)] text-[var(--text-secondary)] flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-brand-500 group-hover:text-white group-hover:border-transparent transition-all">
+                          {userRow.full_name.charAt(0).toUpperCase()}
                         </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <select
-                          className="bg-slate-50 dark:bg-slate-900 border border-[var(--border)] text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-2 font-semibold text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-600 transition-colors cursor-pointer"
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                        >
-                          <option value="Administrator">Administrator</option>
-                          <option value="Mess Manager">Mess Manager</option>
-                          <option value="User">User</option>
-                        </select>
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge variant={u.is_active ? 'success' : 'danger'}>
-                          {u.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="text-xs space-y-1">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                            <span className="font-bold text-slate-900 dark:text-white">{u.total_predictions}</span> predictions
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                            <span className="font-bold text-slate-900 dark:text-white">{u.total_image_analyses}</span> analyses
-                          </div>
+                        <div>
+                          <p className="font-bold text-sm text-[var(--text-primary)]">{userRow.full_name}</p>
+                          <p className="text-xs text-[var(--text-muted)] flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" /> {userRow.email}</p>
                         </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-2"
-                            onClick={() => setEditUser({ id: u.id, full_name: u.full_name, email: u.email })}
-                            title="Edit User"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-2"
-                            onClick={() => setResetUser({ id: u.id, full_name: u.full_name })}
-                            title="Reset Password"
-                          >
-                            <Key className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant={u.is_active ? "danger" : "primary"}
-                            size="sm"
-                            className="h-8 px-2"
-                            onClick={() => handleToggleStatus(u.id, u.is_active)}
-                            title={u.is_active ? "Deactivate User" : "Activate User"}
-                          >
-                            {u.is_active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <Badge variant={userRow.role === 'Administrator' ? 'primary' : userRow.role === 'Mess Manager' ? 'warning' : 'secondary'} className="text-[10px]">
+                        {userRow.role}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap">
+                      <Badge variant={userRow.is_active ? 'success' : 'danger'} className="text-[10px]">
+                        {userRow.is_active ? 'Online' : 'Suspended'}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => { setEditUser(userRow); setNewRole(userRow.role); }} className="p-2 text-[var(--text-muted)] hover:text-brand-500 hover:bg-brand-500/10 rounded-xl transition-colors outline-none" title="Edit Role"><Edit className="w-4 h-4" /></button>
+                        <button onClick={() => setPassUser(userRow)} className="p-2 text-[var(--text-muted)] hover:text-accent-500 hover:bg-accent-500/10 rounded-xl transition-colors outline-none" title="Reset Credentials"><Key className="w-4 h-4" /></button>
+                        {userRow.is_active ? (
+                           <button onClick={() => handleToggleStatus(userRow.id, true)} className="p-2 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors outline-none" title="Suspend Access"><UserX className="w-4 h-4" /></button>
+                        ) : (
+                           <button onClick={() => handleToggleStatus(userRow.id, false)} className="p-2 text-[var(--text-muted)] hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-colors outline-none" title="Restore Access"><UserCheck className="w-4 h-4" /></button>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
               )}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </Card>
 
-      {/* Edit User Modal */}
-      <AnimatePresence>
-        {editUser && (
-          <Modal isOpen={true} onClose={() => setEditUser(null)} title="Edit User">
-            <form onSubmit={submitEditUser} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-300">Full Name</label>
-                <Input
-                  icon={User}
-                  value={editUser.full_name}
-                  onChange={(e) => setEditUser({ ...editUser, full_name: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-300">Email Address</label>
-                <Input
-                  icon={Mail}
-                  type="email"
-                  value={editUser.email}
-                  onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <Button type="button" variant="ghost" onClick={() => setEditUser(null)}>Cancel</Button>
-                <Button type="submit">Save Changes</Button>
-              </div>
-            </form>
-          </Modal>
-        )}
-      </AnimatePresence>
+      {/* Edit Role Modal */}
+      <Modal isOpen={!!editUser} onClose={() => setEditUser(null)} title="Modify Security Clearance">
+        <form onSubmit={handleUpdateRole} className="space-y-4">
+          <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Target Identity: <span className="font-bold text-[var(--text-primary)]">{editUser?.full_name}</span></p>
+          <div>
+            <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">New Clearance Level</label>
+            <Select value={newRole} onChange={e => setNewRole(e.target.value)} icon={Shield} className="h-12 bg-[var(--surface-elevated)] dark:bg-slate-950">
+              <option value="User">Standard User</option>
+              <option value="Mess Manager">Mess Manager</option>
+              <option value="Administrator">Administrator</option>
+            </Select>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button type="button" variant="ghost" onClick={() => setEditUser(null)} className="rounded-xl">Abort</Button>
+            <Button type="submit" className="rounded-xl shadow-lg">Confirm Modification</Button>
+          </div>
+        </form>
+      </Modal>
 
-      {/* Reset Password Modal */}
-      <AnimatePresence>
-        {resetUser && (
-          <Modal isOpen={true} onClose={() => { setResetUser(null); setNewPassword(''); }} title="Reset Password">
-            <form onSubmit={submitResetPassword} className="space-y-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                Enter a new password for <strong className="text-slate-900 dark:text-white">{resetUser.full_name}</strong>.
-              </p>
-              <div>
-                <label className="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-300">New Password</label>
-                <Input
-                  icon={Key}
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  placeholder="At least 6 characters"
-                  minLength={6}
-                />
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <Button type="button" variant="ghost" onClick={() => { setResetUser(null); setNewPassword(''); }}>Cancel</Button>
-                <Button type="submit" variant="danger">Reset Password</Button>
-              </div>
-            </form>
-          </Modal>
-        )}
-      </AnimatePresence>
+      {/* Reset Pass Modal */}
+      <Modal isOpen={!!passUser} onClose={() => setPassUser(null)} title="Force Credential Reset">
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <p className="text-sm font-medium text-[var(--text-secondary)] mb-2">Target Identity: <span className="font-bold text-[var(--text-primary)]">{passUser?.full_name}</span></p>
+          <div>
+            <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">New Credentials</label>
+            <Input type="text" placeholder="Type new password" value={newPass} onChange={e => setNewPass(e.target.value)} required icon={Key} className="h-12 bg-[var(--surface-elevated)] dark:bg-slate-950" />
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button type="button" variant="ghost" onClick={() => setPassUser(null)} className="rounded-xl">Abort</Button>
+            <Button type="submit" className="rounded-xl shadow-lg bg-rose-500 hover:bg-rose-600 text-white border-transparent">Execute Reset</Button>
+          </div>
+        </form>
+      </Modal>
 
-    </div>
+    </motion.div>
   );
 }

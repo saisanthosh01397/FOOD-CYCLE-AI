@@ -42,13 +42,22 @@ def get_history(
         rec = db.query(RecoveryRecommendation).filter(RecoveryRecommendation.log_id == log.id).first()
         img = db.query(ImageMetadata).filter(ImageMetadata.log_id == log.id).first()
         
+        pred_data = None
+        if pred:
+            pred_data = {
+                "items": pred.items,
+                "total_preparation_kg": pred.total_preparation_kg,
+                "total_expected_waste_kg": pred.total_expected_waste_kg,
+                "preventive_actions": pred.preventive_actions
+            }
+            
         items.append({
             "id": log.id,
             "date": str(log.date),
             "meal_type": log.meal_type,
             "food_category": log.food_category,
             "quantity_kg": log.quantity_kg,
-            "prediction": pred.predicted_quantity if pred else None,
+            "prediction": pred_data,
             "recovery": rec.recommended_method if rec else None,
             "image": img.filename if img else None,
             "status": "Completed"
