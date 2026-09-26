@@ -65,10 +65,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    ca_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ca.pem")
+    connect_args = {}
+    if os.path.exists(ca_path):
+        connect_args["ssl"] = {"ca": ca_path}
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=connect_args
     )
 
     with connectable.connect() as connection:
