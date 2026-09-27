@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     DEFAULT_ADMIN_PASSWORD: str = os.getenv("DEFAULT_ADMIN_PASSWORD", "FoodCycle@2026")
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-replace-in-production")
     ALLOWED_ORIGINS: list[str] = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,https://food-cycle-ai.vercel.app").split(",")
+    MYSQL_SSL_CA: str = os.getenv("MYSQL_SSL_CA", "")
 
     @property
     def DATABASE_URL(self):

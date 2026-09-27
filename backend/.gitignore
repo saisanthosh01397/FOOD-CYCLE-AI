@@ -10,3 +10,6 @@ uploads/avatars/*
 !uploads/avatars/.gitkeep
 logs/*
 !logs/.gitkeep
+certs/ca.pem
+
+certs/ca.pem

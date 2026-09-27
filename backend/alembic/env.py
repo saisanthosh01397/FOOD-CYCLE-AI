@@ -65,10 +65,13 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    ca_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ca.pem")
     connect_args = {}
-    if os.path.exists(ca_path):
-        connect_args["ssl"] = {"ca": ca_path}
+    if settings.MYSQL_SSL_CA and os.path.exists(settings.MYSQL_SSL_CA):
+        connect_args["ssl"] = {"ca": settings.MYSQL_SSL_CA}
+    else:
+        ca_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ca.pem")
+        if os.path.exists(ca_path):
+            connect_args["ssl"] = {"ca": ca_path}
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
